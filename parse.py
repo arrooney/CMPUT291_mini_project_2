@@ -93,7 +93,7 @@ class ParseMail(object):
 	## HELPER METHODS: ##
 
 	def __openFiles__(self):
-		self.term = open("term.txt", mode = "w", encoding = "utf-8")
+		self.term = open("terms.txt", mode = "w", encoding = "utf-8")
 		self.emails = open("emails.txt", mode = "w", encoding = "utf-8")
 		self.dates = open("dates.txt", mode = "w", encoding = "utf-8")
 
