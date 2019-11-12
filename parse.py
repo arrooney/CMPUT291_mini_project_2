@@ -56,6 +56,7 @@ class ParseMail(object):
 					break
 		self.__createTerm__()
 		self.__createEmails__()
+		self.__createDates__()
 
 	def __createTerm__(self):
 		if self.thisEmail != {}:
@@ -83,15 +84,23 @@ class ParseMail(object):
 				self.emails.write("bcc-" + self.thisEmail["bcc"] + ":" + id + "\n")
 
 
+	def __createDates__(self):
+		if self.thisEmail != {}:
+			id = self.thisEmail["row"]
+			if self.thisEmail["date"] != []:
+				self.dates.write(self.thisEmail["date"] + ":" + id + "\n")
+
 	## HELPER METHODS: ##
 
 	def __openFiles__(self):
 		self.term = open("term.txt", mode = "w", encoding = "utf-8")
 		self.emails = open("emails.txt", mode = "w", encoding = "utf-8")
+		self.dates = open("dates.txt", mode = "w", encoding = "utf-8")
 
 	def __closeFiles__(self):
 		self.term.close()
 		self.emails.close()
+		self.dates.close()
 
 	def __match__(self, pattern):
 		# check if the current token matches the pattern, increment current if so
