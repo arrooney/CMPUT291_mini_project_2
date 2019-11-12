@@ -55,6 +55,7 @@ class ParseMail(object):
 				if tag[0] == "mail":
 					break
 		self.__createTerm__()
+		self.__createEmails__()
 
 	def __createTerm__(self):
 		if self.thisEmail != {}:
@@ -69,14 +70,28 @@ class ParseMail(object):
 				if len(term) > 2:
 					self.term.write("b-" + term.lower() + ":" + id + "\n")
 
+	def __createEmails__(self):
+		if self.thisEmail != {}:
+			id = self.thisEmail["row"]
+			if self.thisEmail["from"] != "":
+				self.emails.write("from-" + self.thisEmail["from"] + ":" + id + "\n")
+			if self.thisEmail["to"] != "":
+				self.emails.write("to-" + self.thisEmail["to"] + ":" + id + "\n")
+			if self.thisEmail["cc"] != "":
+				self.emails.write("cc-" + self.thisEmail["cc"] + ":" + id + "\n")
+			if self.thisEmail["bcc"] != "":
+				self.emails.write("bcc-" + self.thisEmail["bcc"] + ":" + id + "\n")
+
 
 	## HELPER METHODS: ##
 
 	def __openFiles__(self):
-		self.term = open("term.txt", mode = 'w', encoding = 'utf-8')
+		self.term = open("term.txt", mode = "w", encoding = "utf-8")
+		self.emails = open("emails.txt", mode = "w", encoding = "utf-8")
 
 	def __closeFiles__(self):
 		self.term.close()
+		self.emails.close()
 
 	def __match__(self, pattern):
 		# check if the current token matches the pattern, increment current if so
