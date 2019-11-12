@@ -20,16 +20,17 @@ class ParseMail(object):
 
 	def __mail__(self):
 		self.__openFiles__()
+		self.thisEmail = {}
 		self.thisEmail["xml"] = ""
-
 		while(self.__match__("^\s*(<mail>)|(<emails type=[\w\"\']*>)\s*$")):
+			self.__emailInfo__()
 			self.thisEmail.clear()
 			self.thisEmail["xml"] = ""
-			self.__emailInfo__()
 		self.__closeFiles__()
 
 	def __emailInfo__(self):
-		while(not self.__match__("^\s*</mail>\s*$")):
+		while(not self.__match__("^\s*</mail>\s*$", appendXml=False)):
+			# self.thisEmail["xml"] += self.thisToken.strip()
 			if re.search("^\s*<([\w]+)>([\s\w/!@#$%^&*\.:\-,\?\(\)\"\'\+=\\/\[\]\{\}]+)?</[\w]+>\s*$", self.__tokenPeek__()):
 				# <tag>data</tag>
 				# this line contains 
@@ -40,9 +41,12 @@ class ParseMail(object):
 				# <tag>
 				# next token is data
 				# open tag with contents as next token
-				tagname = re.findall("^\s*<([a-zA-z]+)>\s*$", self.__consume__())
+				tagname = re.findall("^\s*<([a-zA-z]+)>\s*$", self.__tokenPeek__())
 				if (tagname[0] != "mail"):
+					self.__consume__()
 					self.thisEmail[tagname[0]] = self.__consume__()
+				else:
+					self.__consume__(appendXml=False)
 
 			if re.search("^\s*<([a-zA-z]+)/>\s*$", self.__tokenPeek__()):
 				# <emptyTag/>
@@ -54,10 +58,13 @@ class ParseMail(object):
 			if re.search("^\s*</([a-zA-z]+)>\s*$", self.__tokenPeek__()):
 				# </endTag>
 				# end of valid open tag
-				tag = re.findall("^\s*</([a-zA-z]+)>\s*$", self.__consume__())
+				tag = re.findall("^\s*</([a-zA-z]+)>\s*$", self.__tokenPeek__())
 				if tag[0] == "mail":
+					self.__consume__(appendXml=False)
 					break
-		# print(self.thisEmail)
+				else:
+					self.__consume__()
+
 		self.__createTerm__()
 		self.__createEmails__()
 		self.__createDates__()
@@ -96,7 +103,11 @@ class ParseMail(object):
 
 	def __createRecs__(self):
 		if self.thisEmail != {}:
-			self.recs.write(self.thisEmail["row"] + ":<mail>" + self.thisEmail["xml"] + "\n")
+			if re.search("^<mail>", self.thisEmail["xml"]):
+				sep = ":"
+			else:
+				sep = ":<mail>"
+			self.recs.write(self.thisEmail["row"] + sep + self.thisEmail["xml"] + "\n")
 
 
 	## HELPER METHODS: ##
@@ -113,24 +124,26 @@ class ParseMail(object):
 		self.dates.close()
 		self.recs.close()
 
-	def __match__(self, pattern):
+	def __match__(self, pattern, appendXml=True):
 		# check if the current token matches the pattern, increment current if so
 		if not self.thisToken:
 			self.thisToken = sys.stdin.readline()
 			self.thisEmail["xml"] += self.thisToken.strip()
 		if re.search(pattern, self.thisToken):
-			self.thisEmail["xml"] += self.thisToken.strip()
 			self.thisToken = sys.stdin.readline()
+			if appendXml:
+				self.thisEmail["xml"] += self.thisToken.strip()
 			return True
 		return False
 
 	def __tokenPeek__(self):
 		return self.thisToken
 
-	def __consume__(self):
+	def __consume__(self, appendXml=True):
 		tmp = self.thisToken
-		self.thisEmail["xml"] += self.thisToken.strip()
 		self.thisToken = sys.stdin.readline()
+		if appendXml:
+			self.thisEmail["xml"] += self.thisToken.strip()
 		return tmp
 
 
