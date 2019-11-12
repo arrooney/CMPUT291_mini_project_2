@@ -20,8 +20,11 @@ class ParseMail(object):
 
 	def __mail__(self):
 		self.__openFiles__()
+		self.thisEmail["xml"] = ""
+
 		while(self.__match__("^\s*(<mail>)|(<emails type=[\w\"\']*>)\s*$")):
 			self.thisEmail.clear()
+			self.thisEmail["xml"] = ""
 			self.__emailInfo__()
 		self.__closeFiles__()
 
@@ -54,9 +57,11 @@ class ParseMail(object):
 				tag = re.findall("^\s*</([a-zA-z]+)>\s*$", self.__consume__())
 				if tag[0] == "mail":
 					break
+		# print(self.thisEmail)
 		self.__createTerm__()
 		self.__createEmails__()
 		self.__createDates__()
+		self.__createRecs__()
 
 	def __createTerm__(self):
 		if self.thisEmail != {}:
@@ -83,12 +88,16 @@ class ParseMail(object):
 			if self.thisEmail["bcc"] != "":
 				self.emails.write("bcc-" + self.thisEmail["bcc"] + ":" + id + "\n")
 
-
 	def __createDates__(self):
 		if self.thisEmail != {}:
 			id = self.thisEmail["row"]
 			if self.thisEmail["date"] != []:
 				self.dates.write(self.thisEmail["date"] + ":" + id + "\n")
+
+	def __createRecs__(self):
+		if self.thisEmail != {}:
+			self.recs.write(self.thisEmail["row"] + ":<mail>" + self.thisEmail["xml"] + "\n")
+
 
 	## HELPER METHODS: ##
 
@@ -96,17 +105,21 @@ class ParseMail(object):
 		self.term = open("terms.txt", mode = "w", encoding = "utf-8")
 		self.emails = open("emails.txt", mode = "w", encoding = "utf-8")
 		self.dates = open("dates.txt", mode = "w", encoding = "utf-8")
+		self.recs = open("recs.txt", mode = "w", encoding = "utf-8")
 
 	def __closeFiles__(self):
 		self.term.close()
 		self.emails.close()
 		self.dates.close()
+		self.recs.close()
 
 	def __match__(self, pattern):
 		# check if the current token matches the pattern, increment current if so
 		if not self.thisToken:
 			self.thisToken = sys.stdin.readline()
+			self.thisEmail["xml"] += self.thisToken.strip()
 		if re.search(pattern, self.thisToken):
+			self.thisEmail["xml"] += self.thisToken.strip()
 			self.thisToken = sys.stdin.readline()
 			return True
 		return False
@@ -116,6 +129,7 @@ class ParseMail(object):
 
 	def __consume__(self):
 		tmp = self.thisToken
+		self.thisEmail["xml"] += self.thisToken.strip()
 		self.thisToken = sys.stdin.readline()
 		return tmp
 
