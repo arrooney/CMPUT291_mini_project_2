@@ -61,13 +61,11 @@ class ParseMail(object):
 			# sanitize output and write to term.txt
 			id = self.thisEmail["row"]
 			# subject line
-			for term in self.thisEmail["subj"].split(" "):
-				term = re.sub("[^a-zA-Z0-9\-_]*|&#[\d]+", "", term)
+			for term in re.split(" |[^a-zA-Z0-9\-_]*|&#[\d]+", self.thisEmail["subj"]):
 				if len(term) > 2:
 					self.term.write("s-" + term.lower() + ":" + id + "\n")
 			# body
-			for term in self.thisEmail["body"].split(" "):
-				term = re.sub("[^a-zA-Z\-_]*|&#[\d]+", "", term)
+			for term in re.split(" |[^a-zA-Z0-9\-_]*|&#[\d]+", self.thisEmail["body"]):
 				if len(term) > 2:
 					self.term.write("b-" + term.lower() + ":" + id + "\n")
 

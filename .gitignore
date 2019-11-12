@@ -7,6 +7,10 @@ __pycache__/
 *.so
 *.swp
 *.pyc
+terms.txt
+emails.txt
+data.txt
+recs.txt
 # Distribution / packaging
 .Python
 build/
