@@ -3,30 +3,19 @@ import sys, re
 
 class parseMail(object):
 
-	def __match__(self, pattern):
-		# check if the current token matches the pattern, increment current if so
-		if not self.thisToken:
-			self.thisToken = sys.stdin.readline()
-		if re.search(pattern, self.thisToken):
-			self.thisToken = sys.stdin.readline()
-			return True
-		return False
-
-	def __tokenPeek__(self):
-		return self.thisToken
-
-	def __consume__(self):
-		tmp = self.thisToken
-		self.thisToken = sys.stdin.readline()
-		return tmp
-
+	# CONSTRUCTOR:
 	def __init__(self):
 		self.thisEmail = {}
 		self.current = 0
 		self.thisToken = None
 
+	## PUBLIC METHODS: ##
+
 	def execute(self):
+		# public entry point to the parser
 		self.__mail__()
+
+	## PRIVATE METHODS: ##
 
 	def __mail__(self):
 		while(self.__match__("^\s*(<mail>)|(<emails type=[\w\"\']*>)\s*$")):
@@ -55,7 +44,24 @@ class parseMail(object):
 					break
 		print(self.thisEmail)
 
+	## HELPER METHODS: ##
 
+	def __match__(self, pattern):
+		# check if the current token matches the pattern, increment current if so
+		if not self.thisToken:
+			self.thisToken = sys.stdin.readline()
+		if re.search(pattern, self.thisToken):
+			self.thisToken = sys.stdin.readline()
+			return True
+		return False
+
+	def __tokenPeek__(self):
+		return self.thisToken
+
+	def __consume__(self):
+		tmp = self.thisToken
+		self.thisToken = sys.stdin.readline()
+		return tmp
 
 
 def main():
