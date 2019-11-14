@@ -1,4 +1,4 @@
-import sys, re
+import sys, re, os
 
 
 class ParseMail(object):
@@ -27,6 +27,7 @@ class ParseMail(object):
 			self.thisEmail.clear()
 			self.thisEmail["xml"] = ""
 		self.__closeFiles__()
+		self.__sortFiles__()
 
 	def __emailInfo__(self):
 		while(not self.__match__("^\s*</mail>\s*$", appendXml=False)):
@@ -108,6 +109,12 @@ class ParseMail(object):
 			else:
 				sep = ":<mail>"
 			self.recs.write(self.thisEmail["row"] + sep + self.thisEmail["xml"] + "\n")
+	
+	def __sortFiles__(self):
+		os.system("sort terms.txt -u -o terms_sorted.txt")
+		os.system("sort emails.txt -u -o emails_sorted.txt")
+		os.system("sort dates.txt -u -o dates_sorted.txt")
+		os.system("sort recs.txt -u -o recs_sorted.txt")
 
 
 	## HELPER METHODS: ##
