@@ -13,6 +13,7 @@ emails.txt
 data.txt
 dates.txt
 recs.txt
+*.txt
 # Distribution / packaging
 .Python
 build/
