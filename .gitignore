@@ -16,6 +16,7 @@ recs.txt
 *.txt
 # Distribution / packaging
 .Python
+idx/
 build/
 develop-eggs/
 dist/
