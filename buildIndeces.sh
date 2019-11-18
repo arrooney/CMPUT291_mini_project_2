@@ -14,7 +14,7 @@ fi
 
 if [ -f "recs.txt" ]; then
 	sort recs.txt -u -n -o recs.txt
-	cat recs.txt | ./break.pl | db_load -c duplicates=1 -T -t hash tmp.db${DIR}re.idx
+	cat recs.txt | ./break.pl | db_load -c duplicates=1 -T -t hash ${DIR}re.idx
 fi
 
 if [ -f "emails.txt" ]; then
