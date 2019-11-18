@@ -30,7 +30,6 @@ class ParseMail(object):
 
 	def __emailInfo__(self):
 		while(not self.__match__("^\s*</mail>\s*$", appendXml=False)):
-			# self.thisEmail["xml"] += self.thisToken.strip()
 			if re.search("^\s*<([\w]+)>([\s\w/!@#$%^&*\.:\-,\?\(\)\"\'\+=\\/\[\]\{\}]+)?</[\w]+>\s*$", self.__tokenPeek__()):
 				# <tag>data</tag>
 				# this line contains 

@@ -9,7 +9,7 @@ fi
 # sort the files, use db_load to create the index
 if [ -f "terms.txt" ]; then
 	sort terms.txt -u -o terms.txt
-	cat terms.txt | ./break.pl | db_load -T -t ${DIR}te.idx
+	cat terms.txt | ./break.pl | db_load -T -t btree ${DIR}te.idx
 fi
 
 if [ -f "recs.txt" ]; then
