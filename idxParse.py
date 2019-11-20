@@ -116,7 +116,7 @@ class QueryParse(object):
                     if self.__currentToken__() != result[0].decode("utf-8"):
                         result = cursor.prev()
                         idResult.add(result)
-
+            mydb.close()
             return
         def __emailQuery__(self):
             return
