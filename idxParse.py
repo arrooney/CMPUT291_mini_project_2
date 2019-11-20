@@ -87,11 +87,18 @@ class QueryParse(object):
             mydb.open("idx/da.idx", None, db.DB_BTREE, db.DB_RDONLY)
             cursor = mydb.cursor()
             if self.__match__("^:$"):
-                cursor.set(self.__currentToken__().encode("utf-8"))
+                result = cursor.set(self.__currentToken__().encode("utf-8"))
+                idResult.add(result)
             elif self.__match("^>=$"):
-                cursor.set_range(self.__currentToken__().encode("utf-8"))
+                result = cursor.set_range(self.__currentToken__().encode("utf-8"))
+                while (result != None):
+                    result = cursor.next()
+                    idResult.add(result)
             elif self.__match("^<=$"):
                 cursor.set_range(self.__currentToken__().encode("utf-8"))
+                while (result != None):
+                    result = cursor.prev()
+                    idResult.add(result)
             elif self.__match("^>$"):
                 cursor.set_range(self.__currentToken__().encode("utf-8"))
             elif self.__match("^<$"):
