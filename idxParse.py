@@ -22,17 +22,20 @@
 import re
 
 class QueryParse(object):
-        __init__(self, tokens):
+        def __init__(self, tokens):
             self.tokens = tokens # list of tokens from the user
             self.current = 0
             self.mode = "brief" # brief by default
 
         def __rewind__(self):
-            self.current--
+            self.current -= 1
+
+        def __currentToken__(self):
+            return self.tokens[self.current]
 
         def __match__(self, pattern):
-            if re.search(pattern, self.tokens[self.current]):
-                self.current++
+            if re.search(pattern, self.__currentToken__()):
+                self.current += 1
                 return True
             return False
 
@@ -40,23 +43,31 @@ class QueryParse(object):
             return self.__command__()
 
         def __command__(self):
-            if (match("^output=[\w]$")):
+            if (self.__match__("^output=[\w]$")):
                 self.__rewind__()
                 return self.__modeChange__()
             else:
                 return self.__query__()
 
         def __modeChange__(self):
-            mode = re.findall("^output=([\w]+)$")
+            mode = re.findall("^output=([\w]+)$", self.__currentToken__())
+            if mode != []:
+                mode = mode[0]
             if not (mode == 'full' or mode == 'brief'):
                 return "Failed"
             else:
                 self.mode = mode
                 return "Success"
 
+        def __query__(self):
+            return
+
 def main():
-    query = raw_input("enter query")
-    tokens = list(filter(None, re.split(r"([\w]+:)", str)))
+
+    query = input("enter query")
+    tokens = list(filter(None, re.split(r"([\w]+( )*:)", query)))
+    parser = QueryParse(tokens)
+    print(parser.execute())
 
 
 if __name__ == "__main__":
