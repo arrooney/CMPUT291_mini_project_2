@@ -43,7 +43,7 @@ class QueryParse(object):
             return self.__command__()
 
         def __command__(self):
-            if (self.__match__("^output=[\w]$")):
+            if (self.__match__("^output=[\w]+$")):
                 self.__rewind__()
                 return self.__modeChange__()
             else:
@@ -64,8 +64,8 @@ class QueryParse(object):
 
 def main():
 
-    query = input("enter query")
-    tokens = list(filter(None, re.split(r"([\w]+( )*:)", query)))
+    query = input("enter query:\n")
+    tokens = list(filter(None, re.split(r"([a-z]+( )*:)", query)))
     parser = QueryParse(tokens)
     print(parser.execute())
 
