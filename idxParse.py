@@ -22,7 +22,7 @@
 import re
 
 class QueryParse(object):
-        __init__(self, tokens):
+        def __init__(self, tokens):
             self.tokens = tokens # list of tokens from the user
             self.current = 0
             self.mode = "brief" # brief by default
@@ -32,7 +32,7 @@ class QueryParse(object):
 
         def __match__(self, pattern):
             if re.search(pattern, self.tokens[self.current]):
-                self.current++
+                self.current+=1
                 return True
             return False
 
@@ -40,7 +40,7 @@ class QueryParse(object):
             return self.__command__()
 
         def __command__(self):
-            if (match("^output=[\w]$")):
+            if (re.match("^output=[\w]$")):
                 self.__rewind__()
                 return self.__modeChange__()
             else:
@@ -55,7 +55,7 @@ class QueryParse(object):
                 return "Success"
 
 def main():
-    query = raw_input("enter query")
+    query = input("enter query")
     tokens = list(filter(None, re.split(r"([\w]+:)", str)))
 
 

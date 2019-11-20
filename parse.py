@@ -1,6 +1,5 @@
 import sys, re, os
 
-
 class ParseMail(object):
 
 	# CONSTRUCTOR:
@@ -119,12 +118,13 @@ class ParseMail(object):
 
 	def __openFiles__(self):
 		self.term = open("terms.txt", mode = "w", encoding = "utf-8")
-		self.emails = open("emails.txt", mode = "w", encoding = "utf-8")
+		self.emails = open("emails.txt", mode = "w", encoding = "utf-8") 
 		self.dates = open("dates.txt", mode = "w", encoding = "utf-8")
 		self.recs = open("recs.txt", mode = "w", encoding = "utf-8")
 
 	def __closeFiles__(self):
 		self.term.close()
+
 		self.emails.close()
 		self.dates.close()
 		self.recs.close()
