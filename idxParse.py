@@ -27,7 +27,8 @@ class QueryParse(object):
             self.tokens = tokens # list of tokens from the user
             self.current = 0
             self.mode = "brief" # brief by default
-            self.mydb = db.DB() # instantiate the database object
+            self.mydb = db.DB()
+            self.idResult = set([]) # instantiate the database object
             # mydb.open("idx/da.idx", None, db.DB_BTREE, db.DB_RDONLY)
             # cursor = mydb.cursor()
             # mydb.close()
