@@ -70,7 +70,6 @@ class QueryParse(object):
 
         def __expression__(self):
             if self.__match__("^date$"):
-                self.__rewind__()
                 self.__dateQuery__()
 
             elif self.__match__("^cc$ | ^bcc$ | ^from$ | ^to$"):
@@ -84,6 +83,19 @@ class QueryParse(object):
             return True
 
         def __dateQuery__(self):
+            mydb.open("idx/da.idx", None, db.DB_BTREE, db.DB_RDONLY)
+            cursor = mydb.cursor()
+            if self.__match__("^:$"):
+                cursor.set(self.__currentToken__().encode("utf-8"))
+            elif self.__match("^>=$"):
+                cursor.set_range(self.__currentToken__().encode("utf-8"))
+            elif self.__match("^<=$"):
+                cursor.set_range(self.__currentToken__().encode("utf-8"))
+            elif self.__match("^>$"):
+                cursor.set_range(self.__currentToken__().encode("utf-8"))
+            elif self.__match("^<$"):
+                cursor.set_range(self.__currentToken__().encode("utf-8"))
+
             return
         def __emailQuery__(self):
             return
