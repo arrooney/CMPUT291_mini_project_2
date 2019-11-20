@@ -20,12 +20,17 @@
 # command		::= query | modeChange
 
 import re
+from bsddb3 import db
 
 class QueryParse(object):
         def __init__(self, tokens):
             self.tokens = tokens # list of tokens from the user
             self.current = 0
             self.mode = "brief" # brief by default
+            self.mydb = db.DB() # instantiate the database object
+            # mydb.open("idx/da.idx", None, db.DB_BTREE, db.DB_RDONLY)
+            # cursor = mydb.cursor()
+            # mydb.close()
 
         def __rewind__(self):
             self.current -= 1
@@ -71,20 +76,20 @@ class QueryParse(object):
             elif self.__match__("^cc$ | ^bcc$ | ^from$ | ^to$"):
                 self.__rewind__()
                 self.__emailQuery__()
-            
+
             else:
                 self.__rewind__()
                 self.__termQuery__()
-            
+
             return True
-                
+
         def __dateQuery__(self):
             return
         def __emailQuery__(self):
             return
         def __termQuery__(self):
             return
-        
+
 def main():
 
     query = input("enter query")
