@@ -95,14 +95,22 @@ class QueryParse(object):
                     result = cursor.next()
                     idResult.add(result)
             elif self.__match("^<=$"):
-                cursor.set_range(self.__currentToken__().encode("utf-8"))
+                result = cursor.set_range(self.__currentToken__().encode("utf-8"))
                 while (result != None):
                     result = cursor.prev()
                     idResult.add(result)
             elif self.__match("^>$"):
-                cursor.set_range(self.__currentToken__().encode("utf-8"))
+                result = cursor.set_range(self.__currentToken__().encode("utf-8"))
+                while (result != None):
+                    if self.__currentToken__ != result
+                        result = cursor.next()
+                        idResult.add(result)
             elif self.__match("^<$"):
-                cursor.set_range(self.__currentToken__().encode("utf-8"))
+                result = cursor.set_range(self.__currentToken__().encode("utf-8"))
+                while (result != None):
+                    if self.__currentToken__ != result
+                        result = cursor.prev()
+                        idResult.add(result)
 
             return
         def __emailQuery__(self):
