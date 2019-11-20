@@ -62,6 +62,21 @@ class QueryParse(object):
         def __query__(self):
             while self.current < len(self.tokens):
                 self.__expression__()
+
+        def __expression__(self):
+            if self.__match__("^date$"):
+                self.__rewind__()
+                self.__dateQuery__()
+
+            elif self.__match__("^cc$ | ^bcc$ | ^from$ | ^to$"):
+                self.__rewind__()
+                self.__emailQuery__()
+            
+            else:
+                self.__rewind__()
+                self.__termQuery__()
+            
+            return True
                 
 
 def main():
