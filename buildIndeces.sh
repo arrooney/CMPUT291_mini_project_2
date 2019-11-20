@@ -2,6 +2,8 @@
 
 DIR="./idx/"
 
+rm -r ${DIR}
+
 if ! [ -f ${DIR} ]; then
 	mkdir ${DIR}
 fi
