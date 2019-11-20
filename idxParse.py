@@ -89,26 +89,30 @@ class QueryParse(object):
             if self.__match__("^:$"):
                 result = cursor.set(self.__currentToken__().encode("utf-8"))
                 idResult.add(result)
+
             elif self.__match("^>=$"):
                 result = cursor.set_range(self.__currentToken__().encode("utf-8"))
                 while (result != None):
                     result = cursor.next()
                     idResult.add(result)
+
             elif self.__match("^<=$"):
                 result = cursor.set_range(self.__currentToken__().encode("utf-8"))
                 while (result != None):
                     result = cursor.prev()
                     idResult.add(result)
+
             elif self.__match("^>$"):
                 result = cursor.set_range(self.__currentToken__().encode("utf-8"))
                 while (result != None):
-                    if self.__currentToken__ != result
+                    if self.__currentToken__ != result[0].decode("utf-8")
                         result = cursor.next()
                         idResult.add(result)
+                        
             elif self.__match("^<$"):
                 result = cursor.set_range(self.__currentToken__().encode("utf-8"))
                 while (result != None):
-                    if self.__currentToken__ != result
+                    if self.__currentToken__ != result[0].decode("utf-8")
                         result = cursor.prev()
                         idResult.add(result)
 
