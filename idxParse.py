@@ -78,7 +78,13 @@ class QueryParse(object):
             
             return True
                 
-
+        def __dateQuery__(self):
+            return
+        def __emailQuery__(self):
+            return
+        def __termQuery__(self):
+            return
+        
 def main():
 
     query = input("enter query")
