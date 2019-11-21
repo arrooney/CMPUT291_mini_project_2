@@ -90,12 +90,21 @@ class QueryParse(object):
         def __termQuery__(self):
             return
 
-def main():
 
+def lexer(query):
+    tmp = list(filter(None, re.split(r"([a-zA-Z0-9_\-]+)|(^[:<>]{1}$) | (^output=[\w]+$) | (^[<>=]{2}$)", query)))
+    tokens = []
+    [tokens.append(x) for x in tmp if not str(x).strip() == ""]
+    return tokens
+
+
+
+def main():
     query = input("enter query")
-    tokens = list(filter(None, re.split(r"([\w]+( )*:)", query)))
-    parser = QueryParse(tokens)
-    print(parser.execute())
+    tokens = lexer(query)
+    print(tokens)
+    # parser = QueryParse(tokens)
+    # print(parser.execute())
 
 
 if __name__ == "__main__":
