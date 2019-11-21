@@ -96,31 +96,87 @@ class QueryParse(object):
             [db, cursor] = self.__cursor__("idx/da.idx", "btree")
 
             if self.__match__("^:$"):
-                print("here")
-                result = cursor.set(self.__currentToken__().encode("utf-8"))
+                dateString = ""
+                if re.search("^[0-9]{4}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+                if self.__match__('/'):
+                    dateString+=self.__consumeToken__()
+                if re.search("^[0-9]{2}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+                if self.__match__('/'):
+                    dateString+=self.__consumeToken__()
+                if re.search("^[0-9]{2}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+
+                result = cursor.set(dateString.encode("utf-8"))
                 self.idResult.add(result)
 
             elif self.__match__("^>=$"):
-                result = cursor.set_range(self.__currentToken__().encode("utf-8"))
+                dateString = ""
+                if re.search("^[0-9]{4}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+                if self.__match__('/'):
+                    dateString+=self.__consumeToken__()
+                if re.search("^[0-9]{2}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+                if self.__match__('/'):
+                    dateString+=self.__consumeToken__()
+                if re.search("^[0-9]{2}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+
+                result = cursor.set_range(dateString.encode("utf-8"))
                 while (result != None):
                     result = cursor.next()
                     self.idResult.add(result)
 
             elif self.__match__("^<=$"):
-                result = cursor.set_range(self.__currentToken__().encode("utf-8"))
+                if re.search("^[0-9]{4}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+                if self.__match__('/'):
+                    dateString+=self.__consumeToken__()
+                if re.search("^[0-9]{2}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+                if self.__match__('/'):
+                    dateString+=self.__consumeToken__()
+                if re.search("^[0-9]{2}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+                    
+                result = cursor.set_range(dateString.encode("utf-8"))
                 while (result != None):
                     result = cursor.prev()
                     self.idResult.add(result)
 
             elif self.__match__("^>$"):
-                result = cursor.set_range(self.__currentToken__().encode("utf-8"))
+                if re.search("^[0-9]{4}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+                if self.__match__('/'):
+                    dateString+=self.__consumeToken__()
+                if re.search("^[0-9]{2}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+                if self.__match__('/'):
+                    dateString+=self.__consumeToken__()
+                if re.search("^[0-9]{2}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+
+                result = cursor.set_range(dateString.encode("utf-8"))
                 while (result != None):
                     if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         result = cursor.next()
                         self.idResult.add(result)
                         
             elif self.__match__("^<$"):
-                result = cursor.set_range(self.__currentToken__().encode("utf-8"))
+                if re.search("^[0-9]{4}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+                if self.__match__('/'):
+                    dateString+=self.__consumeToken__()
+                if re.search("^[0-9]{2}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+                if self.__match__('/'):
+                    dateString+=self.__consumeToken__()
+                if re.search("^[0-9]{2}$", self.__currentToken__()):
+                    dateString+=self.__consumeToken__()
+
+                result = cursor.set_range(dateString.encode("utf-8"))
                 while (result != None):
                     if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         result = cursor.prev()
@@ -155,6 +211,10 @@ class QueryParse(object):
                 #do something
             self.__closeConn__(db)
             return
+        def __consumeToken__(self):
+            temp = self.__currentToken__()
+            self.__current__+=1
+            return temp
 
 
 def lexer(query):
