@@ -100,7 +100,7 @@ class QueryParse(object):
                 dateString = self.__createDate__()
                 result = cursor.set(dateString.encode("utf-8"))
 
-                if len(result) != 0:
+                if result != None:
                     self.idResult.add(result[0].decode("utf-8"))
 
             elif self.__match__("^>=$"):
@@ -109,7 +109,7 @@ class QueryParse(object):
                 while (result != None):
                     print (result)
                     result = cursor.next()
-                    if len(result) != 0:
+                    if result != None:
                         self.idResult.add(result[0].decode("utf-8"))
 
             elif self.__match__("^<=$"):
@@ -118,7 +118,7 @@ class QueryParse(object):
                 result = cursor.set_range(dateString.encode("utf-8"))
                 while (result != None):
                     result = cursor.prev()
-                    if len(result) != 0:
+                    if result != None:
                         self.idResult.add(result[0].decode("utf-8"))
 
             elif self.__match__("^>$"):
@@ -129,7 +129,7 @@ class QueryParse(object):
                 while (result != None):
                     if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         result = cursor.next()
-                        if len(result) != 0:
+                        if result != None:
                             self.idResult.add(result[0].decode("utf-8"))
                         
             elif self.__match__("^<$"):
@@ -138,7 +138,7 @@ class QueryParse(object):
                 while (result != None):
                     if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         result = cursor.prev()
-                        if len(result) != 0:
+                        if result != None:
                             self.idResult.add(result[0].decode("utf-8"))
 
             self.__closeConn__(db)
@@ -149,22 +149,25 @@ class QueryParse(object):
 
             #creating an empty string and adding the first token to it
             emailString = ""
-            emailString += self.__currentToken__()
+            emailString += self.__consumeToken__()
 
+            self.__consumeToken__()
             #do this because we need to set the second part of the string to the mail
             #so we need to skip over the delimiter
-            self.current+=2 
+            
+            emailString += '-'
             emailString += self.__currentToken__()
-
+            print (emailString)
             #iterate through every single entry in the query
             #Check and return all emails that have a key that matches emailString
-            email_result = cursor.set(emailString.encode("utf-8"))
-            while (email_result != None):
-                #excludes the current token since this is exclusive
-                if self.__currentToken__() != email_result[0].decode("utf-8"):
-                    email_result = cursor.next()
-                    if len(email_result) != 0:
-                        self.idResult.add(email_result[0].decode("utf-8"))
+            # email_result = cursor.set(emailString.encode("utf-8"))
+            # print (email_result)
+            # while (email_result != None):
+            #     #excludes the current token since this is exclusive
+            #     if self.__currentToken__() != email_result[0].decode("utf-8"):
+            #         email_result = cursor.next()
+            #         if len(email_result) != 0:
+            #             self.idResult.add(email_result[0].decode("utf-8"))
 
             self.__closeConn__(db)
             return
