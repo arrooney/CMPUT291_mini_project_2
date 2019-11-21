@@ -91,29 +91,29 @@ class QueryParse(object):
                 idResult.add(result)
 
 
-            elif self.__match("^>=$"):
+            elif self.__match__("^>=$"):
                 result = cursor.set_range(self.__currentToken__().encode("utf-8"))
                 while (result != None):
                     result = cursor.next()
                     idResult.add(result)
 
-            elif self.__match("^<=$"):
+            elif self.__match__("^<=$"):
                 result = cursor.set_range(self.__currentToken__().encode("utf-8"))
                 while (result != None):
                     result = cursor.prev()
                     idResult.add(result)
 
-            elif self.__match("^>$"):
+            elif self.__match__("^>$"):
                 result = cursor.set_range(self.__currentToken__().encode("utf-8"))
                 while (result != None):
-                    if self.__currentToken__() != result[0].decode("utf-8"):
+                    if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         result = cursor.next()
                         idResult.add(result)
                         
-            elif self.__match("^<$"):
+            elif self.__match__("^<$"):
                 result = cursor.set_range(self.__currentToken__().encode("utf-8"))
                 while (result != None):
-                    if self.__currentToken__() != result[0].decode("utf-8"):
+                    if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         result = cursor.prev()
                         idResult.add(result)
             mydb.close()
@@ -121,6 +121,13 @@ class QueryParse(object):
         def __emailQuery__(self):
             return
         def __termQuery__(self):
+            if self.__match__("^subj$")
+                self.__current__+=1 #do this because the term after subj is the delimiter,
+                
+            elif self.__match__("^body$")
+                self.__current__+=1 #do this because the term after subj is the delimiter
+            else #this will be the condition where term prefix is 0
+                #do something
             return
 
 def main():
