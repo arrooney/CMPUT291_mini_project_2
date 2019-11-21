@@ -147,13 +147,25 @@ class QueryParse(object):
         def __emailQuery__(self):
             [db, cursor] = self.__cursor__("idx/em.idx", "btree")
 
+            #creating an empty string and adding the first token to it
             emailString = ""
             emailString += self.__currentToken__()
-            self.__current__+=2 #do this because we need to set the second part of the string to the mail, so we need to skip over the delimiter
+
+            #do this because we need to set the second part of the string to the mail
+            #so we need to skip over the delimiter
+            self.current+=2 
             emailString += self.__currentToken__()
 
             #iterate through every single entry in the query
-                #Check and return all emails that have a key that matches emailString
+            #Check and return all emails that have a key that matches emailString
+            email_result = cursor.set(emailString.encode("utf-8"))
+            while (email_result != None):
+                #excludes the current token since this is exclusive
+                if self.__currentToken__() != email_result[0].decode("utf-8"):
+                    email_result = cursor.next()
+                    if len(email_result) != 0:
+                        self.idResult.add(email_result[0].decode("utf-8"))
+
             self.__closeConn__(db)
             return
        
@@ -175,6 +187,7 @@ class QueryParse(object):
             temp = self.__currentToken__()
             self.current += 1
             return temp
+        
         def __createDate__(self):
             dateString = ""
             if re.search("^[0-9]{4}$", self.__currentToken__()):
