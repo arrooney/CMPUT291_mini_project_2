@@ -86,6 +86,7 @@ class QueryParse(object):
         def __dateQuery__(self):
             mydb.open("idx/da.idx", None, db.DB_BTREE, db.DB_RDONLY)
             cursor = mydb.cursor()
+
             if self.__match__("^:$"):
                 result = cursor.set(self.__currentToken__().encode("utf-8"))
                 idResult.add(result)
@@ -119,13 +120,28 @@ class QueryParse(object):
             mydb.close()
             return
         def __emailQuery__(self):
+            mydb.open("idx/em.idx", None, db.DB_BTREE, db.DB_RDONLY)
+            cursor = mydb.cursor()
+
+            emailString = ""
+            emailString += self.__currentToken__()
+            self.__current__+=2 #do this because we need to set the second part of the string to the mail, so we need to skip over the delimiter
+            emailString += self.__currentToken__()
+
+            #iterate through every single entry in the query
+                #Check and return all emails that have a key that matches emailString
+
             return
         def __termQuery__(self):
+            mydb.open("idx/recs.idx", None, db.DB_BTREE, db.DB_RDONLY)
+            cursor = mydb.cursor()
+
             if self.__match__("^subj$")
                 self.__current__+=1 #do this because the term after subj is the delimiter,
-                
+
             elif self.__match__("^body$")
                 self.__current__+=1 #do this because the term after subj is the delimiter
+
             else #this will be the condition where term prefix is 0
                 #do something
             return
