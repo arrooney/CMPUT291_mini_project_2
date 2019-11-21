@@ -140,7 +140,7 @@ class QueryParse(object):
                 self.__current__+=1 #do this because the term after subj is the delimiter,
 
             elif self.__match__("^body$")
-                self.__current__+=1 #do this because the term after subj is the delimiter
+                self.__current__+=1 #do this because the term after body is the delimiter
 
             else #this will be the condition where term prefix is 0
                 #do something
