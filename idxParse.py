@@ -28,6 +28,7 @@ class QueryParse(object):
             self.current = 0
             self.mode = "brief" # brief by default
             self.idResult = set()
+            self.multipleQuery = False
             # mydb.open("idx/da.idx", None, db.DB_BTREE, db.DB_RDONLY)
             # cursor = mydb.cursor()
             # mydb.close()
@@ -141,7 +142,10 @@ class QueryParse(object):
                         result = cursor.prev()
                         if result != None:
                             self.dateSet.add(result[1].decode("utf-8"))
-            self.idResult.intersection(dateSet)
+            if self.multipleQuery == True:
+                self.idResult.intersection(dateSet)
+            else:
+                self.idResult = dateSet
             self.__closeConn__(db)
             return
         
@@ -163,13 +167,15 @@ class QueryParse(object):
             #iterate through every single entry in the query
             #Check and return all emails that have a key that matches emailSearch
             result = cursor.first()
-            self.idResult.add(result[0].decode("utf-8"))
             while (result != None):
                 if result[0].decode("utf-8") == emailSearch:
                     print (result[1].decode("utf-8"))
                     emailSet.add(result[1].decode("utf-8"))
                 result = cursor.next()
-            self.idResult.intersection(emailSet)
+            if self.multipleQuery == True:
+                self.idResult.intersection(emailSet)
+            else:
+                self.idResult = emailSet
             self.__closeConn__(db)
 
             return
@@ -237,7 +243,8 @@ def main():
     tokens = lexer(query)
     print(tokens)
     parser = QueryParse(tokens)
-    print(parser.execute())
+    parser.execute()
+    print (parser.idResult)
 
 
 if __name__ == "__main__":
