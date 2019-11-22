@@ -104,7 +104,7 @@ class QueryParse(object):
                 result = cursor.set(dateString.encode("utf-8"))
 
                 if result != None:
-                    self.dateSet.add(result[1].decode("utf-8"))
+                    dateSet.add(result[1].decode("utf-8"))
 
             elif self.__match__("^>=$"):
                 dateString = self.__createDate__()
@@ -113,7 +113,7 @@ class QueryParse(object):
                     print (result)
                     result = cursor.next()
                     if result != None:
-                        self.dateSet.add(result[1].decode("utf-8"))
+                        dateSet.add(result[1].decode("utf-8"))
 
             elif self.__match__("^<=$"):
                 dateString = self.__createDate__()
@@ -122,7 +122,7 @@ class QueryParse(object):
                 while (result != None):
                     result = cursor.prev()
                     if result != None:
-                        self.dateSet.add(result[1].decode("utf-8"))
+                        dateSet.add(result[1].decode("utf-8"))
 
             elif self.__match__("^>$"):
                 dateString = self.__createDate__()
@@ -132,7 +132,7 @@ class QueryParse(object):
                 while (result != None):
                     if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         if result != None:
-                            self.dateSet.add(result[1].decode("utf-8"))
+                            dateSet.add(result[1].decode("utf-8"))
                         
             elif self.__match__("^<$"):
                 dateString = self.__createDate__()
@@ -141,7 +141,7 @@ class QueryParse(object):
                     if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         result = cursor.prev()
                         if result != None:
-                            self.dateSet.add(result[1].decode("utf-8"))
+                            dateSet.add(result[1].decode("utf-8"))
             if self.multipleQuery == True:
                 self.idResult.intersection(dateSet)
             else:
@@ -177,7 +177,6 @@ class QueryParse(object):
             else:
                 self.idResult = emailSet
             self.__closeConn__(db)
-
             return
        
         def __termQuery__(self):
