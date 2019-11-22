@@ -183,10 +183,10 @@ class QueryParse(object):
         def __termQuery__(self):
             [db, cursor] = self.__cursor__("idx/re.idx", "hash")
             if self.__match__("^subj$"):
-                self.__current__+=1 #do this because the term after subj is the delimiter,
+                self.__consumeToken__()
 
             elif self.__match__("^body$"):
-                self.__current__+=1 #do this because the term after body is the delimiter
+                self.__consumeToken__()
 
             else: return #this will be the condition where term prefix is 0
                 #do something
