@@ -45,7 +45,9 @@ class QueryParse(object):
             self.current -= 1
 
         def __currentToken__(self):
-            return self.tokens[self.current]
+            if self.current < len(self.tokens):
+                return self.tokens[self.current]
+            return ""
 
         def __match__(self, pattern):
             if re.search(pattern, self.__currentToken__()):
@@ -146,35 +148,36 @@ class QueryParse(object):
         
         def __emailQuery__(self):
             [db, cursor] = self.__cursor__("idx/em.idx", "btree")
-
+            print (self.__currentToken__())
             #creating an empty string and adding the first token to it
-            emailString = ""
-            emailString += self.__consumeToken__()
-
-            self.__consumeToken__()
-            #do this because we need to set the second part of the string to the mail
-            #so we need to skip over the delimiter
-            
-            emailString += '-'
-            emailString += self.__currentToken__()
-            print (emailString)
+            emailSearch = ""
+            emailTerm = ""
+            emailSearch += self.__consumeToken__()  + "-" # add the "to-, from-, bcc-, or cc-"
+            self.__consumeToken__() # discard the colon
+            emailSearch += self.__emailTerm__(emailTerm)
+            print(self.__currentToken__())
+            print (emailSearch)
+            if (self.__match__("^@$")):
+                emailterm = ""
+                emailSearch += "@" + self.__emailTerm__(emailTerm)
+            print (emailSearch)
             #iterate through every single entry in the query
-            #Check and return all emails that have a key that matches emailString
-            # email_result = cursor.set(emailString.encode("utf-8"))
-            # print (email_result)
-            # while (email_result != None):
-            #     #excludes the current token since this is exclusive
-            #     if self.__currentToken__() != email_result[0].decode("utf-8"):
-            #         email_result = cursor.next()
-            #         if len(email_result) != 0:
-            #             self.idResult.add(email_result[0].decode("utf-8"))
+            #Check and return all emails that have a key that matches emailSearch
+            email_result = cursor.set(emailSearch.encode("utf-8"))
+            print (email_result)
+            while (email_result != None):
+                #excludes the current token since this is exclusive
+                if self.__currentToken__() != email_result[0].decode("utf-8"):
+                    email_result = cursor.next()
+                    print (email_result)
+                    if len(email_result) != 0:
+                        self.idResult.add(email_result[0].decode("utf-8"))
 
             self.__closeConn__(db)
             return
        
         def __termQuery__(self):
             [db, cursor] = self.__cursor__("idx/re.idx", "hash")
-
             if self.__match__("^subj$"):
                 self.__current__+=1 #do this because the term after subj is the delimiter,
 
@@ -185,6 +188,18 @@ class QueryParse(object):
                 #do something
             self.__closeConn__(db)
             return
+
+        def __emailTerm__(self, email):
+            # recursively construct the email term production
+            if(re.search("^[0-9a-zA-Z_-]+$", self.__currentToken__())):
+                email += self.__consumeToken__()
+                if(re.search("^\.$", self.__currentToken__())):
+                    tmp = ""
+                    email += self.__consumeToken__()
+                    email += self.__emailTerm__(tmp)
+                return email
+            else:
+                print("BAD EMAIL FORMAT")
 
         def __consumeToken__(self):
             temp = self.__currentToken__()
@@ -222,6 +237,7 @@ def lexer(query):
 def main():
     query = input("enter query:\n")
     tokens = lexer(query)
+    print(tokens)
     parser = QueryParse(tokens)
     print(parser.execute())
 
