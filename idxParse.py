@@ -91,7 +91,6 @@ class QueryParse(object):
                 self.__emailQuery__()
 
             else:
-                self.__rewind__()
                 self.__termQuery__()
             return True
 
@@ -180,17 +179,60 @@ class QueryParse(object):
             return
        
         def __termQuery__(self):
-            [db, cursor] = self.__cursor__("idx/re.idx", "hash")
             if self.__match__("^subj$"):
-                self.__consumeToken__()
+                # seach in the subject field
+                
+                if not self.__match__("^:$"): print("ERROR") # consume the colon
+               
+                wildCard = False
+                searchTerm = "s-" + self.__consumeToken__()
+                if self.__match__("^%$"):
+                    wildCard = True
+                self.__findTerm__(wildCard, searchTerm)
 
             elif self.__match__("^body$"):
-                self.__consumeToken__()
+                
+                if not self.__match__("^:$"): print("ERROR") # consume the colon
+                
+                # seach in the body field
+                wildCard = False
+                searchTerm = "b-" + self.__consumeToken__()
+                if self.__match__("^%$"):
+                    wildCard = True
+                self.__findTerm__(wildCard, searchTerm)
 
-            else: return #this will be the condition where term prefix is 0
-                #do something
-            self.__closeConn__(db)
+            else: 
+                #this will be the condition where term prefix is 0
+                # search BOTH in the body, and the subject
+                wildCard = False
+                term = self.__consumeToken__()
+                if self.__match__("^%$"):
+                    wildCard = True
+                searchTerm = "b-" + term
+                self.__findTerm__(wildCard, searchTerm)
+                searchTerm = "s-" + term
+                self.__findTerm__(wildCard, searchTerm)
             return
+
+        def __findTerm__(self, wildCard, term):
+            [db, cursor] = self.__cursor__("idx/te.idx", "btree")
+            termSet = set()
+            if wildCard:
+                # search for all occurances in alphabetical order
+                result = cursor.set(term.encode("utf-8"))
+                while (result != None and result[0].decode("utf-8").startswith(term)):
+                    termSet.add(result[1].decode("utf-8"))
+                    result = cursor.next()
+            else:
+                result = cursor.set(term.encode("utf-8"))
+                if result != None:
+                    print(result)
+                    termSet.add(result[1].decode("utf-8"))
+            if self.multipleQuery == True:
+                self.idResult.intersection(termSet)
+            else:
+                self.idResult = termSet
+            self.__closeConn__(db)
 
         def __emailTerm__(self, email):
             # recursively construct the email term production
