@@ -175,6 +175,7 @@ class QueryParse(object):
             temp = self.__currentToken__()
             self.current += 1
             return temp
+            
         def __createDate__(self):
             dateString = ""
             if re.search("^[0-9]{4}$", self.__currentToken__()):
