@@ -96,14 +96,14 @@ class QueryParse(object):
 
         def __dateQuery__(self):
             [db, cursor] = self.__cursor__("idx/da.idx", "btree")
-
+            dateSet = set()
             if self.__match__("^:$"):
                 print(self.__currentToken__())
                 dateString = self.__createDate__()
                 result = cursor.set(dateString.encode("utf-8"))
 
                 if result != None:
-                    self.idResult.add(result[0].decode("utf-8"))
+                    self.dateSet.add(result[1].decode("utf-8"))
 
             elif self.__match__("^>=$"):
                 dateString = self.__createDate__()
@@ -112,7 +112,7 @@ class QueryParse(object):
                     print (result)
                     result = cursor.next()
                     if result != None:
-                        self.idResult.add(result[0].decode("utf-8"))
+                        self.dateSet.add(result[1].decode("utf-8"))
 
             elif self.__match__("^<=$"):
                 dateString = self.__createDate__()
@@ -121,7 +121,7 @@ class QueryParse(object):
                 while (result != None):
                     result = cursor.prev()
                     if result != None:
-                        self.idResult.add(result[0].decode("utf-8"))
+                        self.dateSet.add(result[1].decode("utf-8"))
 
             elif self.__match__("^>$"):
                 dateString = self.__createDate__()
@@ -130,9 +130,8 @@ class QueryParse(object):
                 
                 while (result != None):
                     if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
-                        result = cursor.next()
                         if result != None:
-                            self.idResult.add(result[0].decode("utf-8"))
+                            self.dateSet.add(result[1].decode("utf-8"))
                         
             elif self.__match__("^<$"):
                 dateString = self.__createDate__()
@@ -141,39 +140,38 @@ class QueryParse(object):
                     if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         result = cursor.prev()
                         if result != None:
-                            self.idResult.add(result[0].decode("utf-8"))
-
+                            self.dateSet.add(result[1].decode("utf-8"))
+            self.idResult.intersection(dateSet)
             self.__closeConn__(db)
             return
         
         def __emailQuery__(self):
             [db, cursor] = self.__cursor__("idx/em.idx", "btree")
-            print (self.__currentToken__())
+            emailSet = set()
             #creating an empty string and adding the first token to it
             emailSearch = ""
             emailTerm = ""
             emailSearch += self.__consumeToken__()  + "-" # add the "to-, from-, bcc-, or cc-"
-            self.__consumeToken__() # discard the colon
+            if self.__currentToken__() == ":":
+                self.__consumeToken__() # discard the colon
+            else:
+                print ("Enter a valid query")
             emailSearch += self.__emailTerm__(emailTerm)
-            print(self.__currentToken__())
-            print (emailSearch)
             if (self.__match__("^@$")):
                 emailterm = ""
                 emailSearch += "@" + self.__emailTerm__(emailTerm)
-            print (emailSearch)
             #iterate through every single entry in the query
             #Check and return all emails that have a key that matches emailSearch
-            email_result = cursor.set(emailSearch.encode("utf-8"))
-            print (email_result)
-            while (email_result != None):
-                #excludes the current token since this is exclusive
-                if self.__currentToken__() != email_result[0].decode("utf-8"):
-                    email_result = cursor.next()
-                    print (email_result)
-                    if len(email_result) != 0:
-                        self.idResult.add(email_result[0].decode("utf-8"))
-
+            result = cursor.first()
+            self.idResult.add(result[0].decode("utf-8"))
+            while (result != None):
+                if result[0].decode("utf-8") == emailSearch:
+                    print (result[1].decode("utf-8"))
+                    emailSet.add(result[1].decode("utf-8"))
+                result = cursor.next()
+            self.idResult.intersection(emailSet)
             self.__closeConn__(db)
+
             return
        
         def __termQuery__(self):
