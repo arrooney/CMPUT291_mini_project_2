@@ -60,7 +60,6 @@ class QueryParse(object):
             return list(self.idResult)
 
         def __command__(self):
-            print(self.__currentToken__())
             # print("fuc")
             if (self.__match__("^output=[\w]+$")):
                 self.__rewind__()
@@ -99,7 +98,11 @@ class QueryParse(object):
             dateSet = set()
             if self.__match__("^:$"):
                 dateString = self.__createDate__()
-                result = cursor.set_range(dateString.encode("utf-8"))
+                if dateString != None:
+                    result = cursor.set_range(dateString.encode("utf-8"))
+                else:
+                    print ("BAD QUERY FORMAT")
+                    return
 
                 while (result != None):
                     if dateString == result[0].decode("utf-8"):
@@ -111,7 +114,11 @@ class QueryParse(object):
 
             elif self.__match__("^>=$"):
                 dateString = self.__createDate__()
-                result = cursor.set_range(dateString.encode("utf-8"))
+                if dateString != None:
+                    result = cursor.set_range(dateString.encode("utf-8"))
+                else:
+                    print ("BAD QUERY FORMAT")
+                    return
                 
                 while (result != None):
                     # print (result)
@@ -121,7 +128,11 @@ class QueryParse(object):
 
             elif self.__match__("^<=$"):
                 dateString = self.__createDate__()
-                result = cursor.set_range(dateString.encode("utf-8"))
+                if dateString != None:
+                    result = cursor.set_range(dateString.encode("utf-8"))
+                else:
+                    print ("BAD QUERY FORMAT")
+                    return
                 
                 while (result != None):
                     if result != None and dateString >= result[0].decode("utf-8"):
@@ -130,7 +141,11 @@ class QueryParse(object):
 
             elif self.__match__("^>$"):
                 dateString = self.__createDate__()
-                result = cursor.set_range(dateString.encode("utf-8"))
+                if dateString != None:
+                    result = cursor.set_range(dateString.encode("utf-8"))
+                else:
+                    print ("BAD QUERY FORMAT")
+                    return
                 
                 while (result != None):
                     if dateString != result[0].decode("utf-8"): #excludes the current token since this is exclusive
@@ -140,8 +155,11 @@ class QueryParse(object):
                         
             elif self.__match__("^<$"):
                 dateString = self.__createDate__()
-                result = cursor.set_range(dateString.encode("utf-8"))
-                
+                if dateString != None:
+                    result = cursor.set_range(dateString.encode("utf-8"))
+                else:
+                    print ("BAD QUERY FORMAT")
+
                 while (result != None):
                     if dateString != result[0].decode("utf-8") and dateString > result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         if result != None:
@@ -269,18 +287,29 @@ class QueryParse(object):
             dateString = ""
             if re.search("^[0-9]{4}$", self.__currentToken__()):
                 dateString += self.__consumeToken__()
+            else:
+                return None
 
             if re.search("^/$", self.__currentToken__()):
                 dateString += self.__consumeToken__()
+            else:
+                return None
                 
             if re.search("^[0-9]{2}$", self.__currentToken__()):
                 dateString += self.__consumeToken__()
+            else:
+                return None
                 
             if re.search("^/$", self.__currentToken__()):
                 dateString += self.__consumeToken__()
+            else:
+                return None
                 
             if re.search("^[0-9]{2}$", self.__currentToken__()):
                 dateString += self.__consumeToken__()
+            else:
+                return None
+            #do while python equavilent?
             return dateString
 
 class Lexer(object):
