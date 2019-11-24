@@ -94,6 +94,7 @@ class QueryParse(object):
                 self.__emailQuery__()
 
             else:
+                self.__rewind__()
                 self.__termQuery__()
             return True
 
@@ -101,21 +102,21 @@ class QueryParse(object):
             [db, cursor] = self.__cursor__("idx/da.idx", "btree")
             dateSet = set()
             if self.__match__("^:$"):
-                print(self.__currentToken__())
+                # print(self.__currentToken__())
                 dateString = self.__createDate__()
                 result = cursor.set(dateString.encode("utf-8"))
 
                 if result != None:
-                    dateSet.add(result[1].decode("utf-8"))
+                    self.dateSet.add(result[1].decode("utf-8"))
 
             elif self.__match__("^>=$"):
                 dateString = self.__createDate__()
                 result = cursor.set_range(dateString.encode("utf-8"))
                 while (result != None):
-                    print (result)
+                    # print (result)
                     result = cursor.next()
                     if result != None:
-                        dateSet.add(result[1].decode("utf-8"))
+                        self.dateSet.add(result[1].decode("utf-8"))
 
             elif self.__match__("^<=$"):
                 dateString = self.__createDate__()
@@ -124,7 +125,7 @@ class QueryParse(object):
                 while (result != None):
                     result = cursor.prev()
                     if result != None:
-                        dateSet.add(result[1].decode("utf-8"))
+                        self.dateSet.add(result[1].decode("utf-8"))
 
             elif self.__match__("^>$"):
                 dateString = self.__createDate__()
@@ -134,7 +135,7 @@ class QueryParse(object):
                 while (result != None):
                     if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         if result != None:
-                            dateSet.add(result[1].decode("utf-8"))
+                            self.dateSet.add(result[1].decode("utf-8"))
                         
             elif self.__match__("^<$"):
                 dateString = self.__createDate__()
@@ -143,7 +144,7 @@ class QueryParse(object):
                     if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         result = cursor.prev()
                         if result != None:
-                            dateSet.add(result[1].decode("utf-8"))
+                            self.dateSet.add(result[1].decode("utf-8"))
             if self.multipleQuery == True:
                 self.idResult.intersection(dateSet)
             else:
@@ -166,56 +167,31 @@ class QueryParse(object):
             if (self.__match__("^@$")):
                 emailterm = ""
                 emailSearch += "@" + self.__emailTerm__(emailTerm)
+            
             #iterate through every single entry in the query
             #Check and return all emails that have a key that matches emailSearch
             result = cursor.first()
             while (result != None):
                 if result[0].decode("utf-8") == emailSearch:
-                    print (result[1].decode("utf-8"))
+                    # print (result[1].decode("utf-8"))
                     emailSet.add(result[1].decode("utf-8"))
                 result = cursor.next()
             if self.multipleQuery == True:
                 self.idResult.intersection(emailSet)
             else:
                 self.idResult = emailSet
+            
             self.__closeConn__(db)
+
             return
        
         def __termQuery__(self):
+            [db, cursor] = self.__cursor__("idx/re.idx", "hash")
             if self.__match__("^subj$"):
-                # seach in the subject field
-                
-                if not self.__match__("^:$"): print("ERROR") # consume the colon
-               
-                wildCard = False
-                searchTerm = "s-" + self.__consumeToken__()
-                if self.__match__("^%$"):
-                    wildCard = True
-                self.__findTerm__(wildCard, searchTerm)
+                self.__consumeToken__()
 
             elif self.__match__("^body$"):
-                
-                if not self.__match__("^:$"): print("ERROR") # consume the colon
-                
-                # seach in the body field
-                wildCard = False
-                searchTerm = "b-" + self.__consumeToken__()
-                if self.__match__("^%$"):
-                    wildCard = True
-                self.__findTerm__(wildCard, searchTerm)
-
-            else: 
-                #this will be the condition where term prefix is 0
-                # search BOTH in the body, and the subject
-                wildCard = False
-                term = self.__consumeToken__()
-                if self.__match__("^%$"):
-                    wildCard = True
-                searchTerm = "b-" + term
-                self.__findTerm__(wildCard, searchTerm)
-                searchTerm = "s-" + term
-                self.__findTerm__(wildCard, searchTerm)
-            return
+                self.__consumeToken__()
 
         def __findTerm__(self, wildCard, term):
             [db, cursor] = self.__cursor__("idx/te.idx", "btree")
@@ -235,7 +211,10 @@ class QueryParse(object):
                 self.idResult.intersection(termSet)
             else:
                 self.idResult = termSet
+            else: return #this will be the condition where term prefix is 0
+                #do something
             self.__closeConn__(db)
+            return
 
         def __emailTerm__(self, email):
             # recursively construct the email term production
@@ -320,10 +299,9 @@ class XMLParse(object):
 def main():
     query = input("enter query:\n")
     tokens = lexer(query)
-    # print(tokens)
     parser = QueryParse(tokens)
     parser.execute()
-    print (parser.idResult)
+    # print (parser.idResult)
 
 
 if __name__ == "__main__":
