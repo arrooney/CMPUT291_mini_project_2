@@ -60,9 +60,6 @@ def main():
 		else:
 			displayResults(idx, parser.mode)
 
-
-
-
 def prettyPrint(output, timeout=0):
 	# output a nice header, with an optional timeout parameter
 	clear()
