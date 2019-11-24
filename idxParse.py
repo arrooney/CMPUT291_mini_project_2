@@ -59,9 +59,12 @@ class QueryParse(object):
         def execute(self):
             return self.__command__()
 
+        def getResult(self):
+            return list(self.idResult)
+
         def __command__(self):
             print(self.__currentToken__())
-
+            # print("fuc")
             if (self.__match__("^output=[\w]+$")):
                 self.__rewind__()
                 return self.__modeChange__()
@@ -226,7 +229,7 @@ class QueryParse(object):
             else:
                 result = cursor.set(term.encode("utf-8"))
                 if result != None:
-                    print(result)
+                    # print(result)
                     termSet.add(result[1].decode("utf-8"))
             if self.multipleQuery == True:
                 self.idResult.intersection(termSet)
@@ -270,19 +273,54 @@ class QueryParse(object):
             return dateString
 
 
+class Lexer(object):
 
-def lexer(query):
-    tmp = list(filter(None, re.split(r" |(^[<>=]{2}$)|(^[:<>]{1}$)|(^output=[\w]+$)|([a-zA-Z0-9_\-]+)", query)))
-    tokens = []
-    [tokens.append(x) for x in tmp if not str(x).strip() == ""]
-    return tokens
+    def __init__(self):
+        return
 
+    def execute(self, query):
+        tmp = list(filter(None, re.split(r" |(^[<>=]{2}$)|(^[:<>]{1}$)|(^output=[\w]+$)|([a-zA-Z0-9_\-]+)", query)))
+        tokens = []
+        [tokens.append(x) for x in tmp if not str(x).strip() == ""]
+        return tokens
 
+class XMLlexer(object):
+    def __init__(self):
+        return
+
+    def execute(self, xml):
+        tmp = re.split("(<[\w\/]+>)", xml)
+        tokens = []
+        [tokens.append(x) for x in tmp if not str(x).strip() == ""]
+        return tokens
+
+class XMLParse(object):
+    """docstring for XMLParse"""
+    def __init__(self):
+        self.result = {}
+
+    def execute(self, tokens):
+        i = 0
+        self.result = {}
+        while(i < len(tokens)):
+            if (re.search("<([a-zA-Z]+)>", tokens[i])):
+                tmp = re.findall("<([a-zA-Z]+)>", tokens[i])[0]
+                i += 1
+                val = tokens[i]
+                if not re.search("^<[\w\/]+>$", val):
+                    # not another tag of any sort
+                    self.result[tmp] = val
+                else:
+                    self.result[tmp] = ""
+                    i -= 1
+            i += 1
+
+        
 
 def main():
     query = input("enter query:\n")
     tokens = lexer(query)
-    print(tokens)
+    # print(tokens)
     parser = QueryParse(tokens)
     parser.execute()
     print (parser.idResult)
