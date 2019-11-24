@@ -5,6 +5,7 @@ from bsddb3 import db
 
 clear = lambda: os.system('clear')
 lexer = Lexer()
+parser = QueryParse()
 xmlLexer = XMLlexer()
 xmlParser = XMLParse()
 
@@ -54,10 +55,10 @@ def main():
 		print("Enter your query:")
 		query = input("> ")
 		tokens = lexer.execute(query)
-		parser = QueryParse(tokens)
-		parser.execute()
+		parser.execute(tokens)
 		idx = parser.getResult()
 		if idx == []:
+			# either empty, or mode change
 			prettyPrint("No results", 0.5)
 		else:
 			displayResults(idx, parser.mode)

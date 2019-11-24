@@ -23,12 +23,8 @@ import re
 from bsddb3 import db
 
 class QueryParse(object):
-        def __init__(self, tokens):
-            self.tokens = tokens # list of tokens from the user
-            self.current = 0
+        def __init__(self):
             self.mode = "brief" # brief by default
-            self.idResult = set()
-            self.multipleQuery = False
 
         def __cursor__(self, path, treeType):
             tmp = db.DB()
@@ -53,7 +49,11 @@ class QueryParse(object):
                 return True
             return False
 
-        def execute(self):
+        def execute(self, tokens):
+            self.tokens = tokens # list of tokens from the user
+            self.current = 0
+            self.idResult = set()
+            self.multipleQuery = False
             return self.__command__()
 
         def getResult(self):
@@ -106,7 +106,7 @@ class QueryParse(object):
                 while (result != None):
                     if dateString == result[0].decode("utf-8"):
                         dateSet.add(result[1].decode("utf-8"))
-                    cursor.next()
+                    result = cursor.next()
 
                 if result != None:
                     dateSet.add(result[1].decode("utf-8"))
