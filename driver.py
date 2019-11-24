@@ -14,10 +14,13 @@ def main():
     parser = QueryParse(tokens)
     parser.execute()
     [db, cursor] = parser.__cursor__("idx/re.idx", "hash")
-    recordResult: []
+    recordResult = []
     for ID in parser.idResult:
         record = cursor.first()
         while record != None:
             if ID == record[0].decode("utf-8"):
                 recordResult.append(record[1].decode("utf-8"))
+            record = cursor.next()
+    print (recordResult)
 
+main()
