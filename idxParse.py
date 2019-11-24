@@ -104,10 +104,12 @@ class QueryParse(object):
             if self.__match__("^:$"):
                 # print(self.__currentToken__())
                 dateString = self.__createDate__()
-                result = cursor.set(dateString.encode("utf-8"))
+                result = cursor.set_range(dateString.encode("utf-8"))
 
-                if result != None:
-                    dateSet.add(result[1].decode("utf-8"))
+                while (result != None):
+                    if dateString == result[0].decode("utf-8"):
+                        dateSet.add(result[1].decode("utf-8"))
+                    cursor.next()
 
             elif self.__match__("^>=$"):
                 dateString = self.__createDate__()
@@ -209,10 +211,10 @@ class QueryParse(object):
                     termSet.add(result[1].decode("utf-8"))
             if self.multipleQuery == True:
                 self.idResult.intersection(termSet)
-            else:
+            elif self.multipleQuery == False:
                 self.idResult = termSet
-            else: return #this will be the condition where term prefix is 0
-                #do something
+            else: 
+                return #this will be the condition where term prefix is 0
             self.__closeConn__(db)
             return
 
