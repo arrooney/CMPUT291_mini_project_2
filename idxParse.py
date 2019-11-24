@@ -250,7 +250,6 @@ class QueryParse(object):
             if re.search("^[0-9]{2}$", self.__currentToken__()):
                 dateString += self.__consumeToken__()
             return dateString
-<<<<<<< HEAD
 
 
 class Lexer(object):
@@ -307,5 +306,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-=======
->>>>>>> d8a579f7bb3be1873ad162930d34ebd19fa7e70c
