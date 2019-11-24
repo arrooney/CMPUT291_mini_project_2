@@ -29,9 +29,6 @@ class QueryParse(object):
             self.mode = "brief" # brief by default
             self.idResult = set()
             self.multipleQuery = False
-            # mydb.open("idx/da.idx", None, db.DB_BTREE, db.DB_RDONLY)
-            # cursor = mydb.cursor()
-            # mydb.close()
 
         def __cursor__(self, path, treeType):
             tmp = db.DB()
@@ -285,7 +282,6 @@ class QueryParse(object):
             if re.search("^[0-9]{2}$", self.__currentToken__()):
                 dateString += self.__consumeToken__()
             return dateString
-
 
 class Lexer(object):
 
