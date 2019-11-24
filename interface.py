@@ -25,6 +25,8 @@ def displayResults(idList, verbosity):
 		print("subj:")
 		if ("subj" in email.keys()):
 			print(email["subj"])
+		else:
+			print("(No subject)")
 		if verbosity == "full":
 			print("Date:")
 			if ("date" in email.keys()):
