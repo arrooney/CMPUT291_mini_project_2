@@ -20,30 +20,30 @@ def displayResults(idList, verbosity):
 		xmlParser.execute(tok)
 		email = xmlParser.result
 
-	print("ID:")
-	print(email["row"])
-	print("subj:")
-	if ("subj" in email.keys()):
-		print(email["subj"])
-	if verbosity == "full":
-		print("Date:")
-		if ("date" in email.keys()):
-			print(email["date"])
-		print("From:")
-		if ("from" in email.keys()):
-			print(email["from"])
-		print("To:")
-		if ("to" in email.keys()):
-			print(email["to"])
-		print("CC:")
-		if ("cc" in email.keys()):
-			print(email["cc"])
-		print("BCC:")
-		if ("bcc" in email.keys()):
-			print(email["bcc"])
-		print("Body:")
-		if ("body" in email.keys()):
-			print(email["body"])
+		print("ID:")
+		print(email["row"])
+		print("subj:")
+		if ("subj" in email.keys()):
+			print(email["subj"])
+		if verbosity == "full":
+			print("Date:")
+			if ("date" in email.keys()):
+				print(email["date"])
+			print("From:")
+			if ("from" in email.keys()):
+				print(email["from"])
+			print("To:")
+			if ("to" in email.keys()):
+				print(email["to"])
+			print("CC:")
+			if ("cc" in email.keys()):
+				print(email["cc"])
+			print("BCC:")
+			if ("bcc" in email.keys()):
+				print(email["bcc"])
+			print("Body:")
+			if ("body" in email.keys()):
+				print(email["body"])
 
 	mydb.close()
 
