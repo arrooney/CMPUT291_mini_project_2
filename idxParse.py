@@ -60,7 +60,6 @@ class QueryParse(object):
             return list(self.idResult)
 
         def __command__(self):
-            # print("fuc")
             if (self.__match__("^output=[\w]+$")):
                 self.__rewind__()
                 return self.__modeChange__()
@@ -256,7 +255,6 @@ class QueryParse(object):
             else:
                 result = cursor.set(term.encode("utf-8"))
                 if result != None:
-                    print(result)
                     termSet.add(result[1].decode("utf-8"))
             if self.multipleQuery == True:
                 self.idResult.intersection(termSet)
@@ -309,7 +307,6 @@ class QueryParse(object):
                 dateString += self.__consumeToken__()
             else:
                 return None
-            #do while python equavilent?
             return dateString
 
 class Lexer(object):
