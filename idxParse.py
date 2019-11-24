@@ -109,6 +109,9 @@ class QueryParse(object):
                         dateSet.add(result[1].decode("utf-8"))
                     cursor.next()
 
+                if result != None:
+                    dateSet.add(result[1].decode("utf-8"))
+
             elif self.__match__("^>=$"):
                 dateString = self.__createDate__()
                 result = cursor.set_range(dateString.encode("utf-8"))
