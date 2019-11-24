@@ -101,7 +101,6 @@ class QueryParse(object):
             [db, cursor] = self.__cursor__("idx/da.idx", "btree")
             dateSet = set()
             if self.__match__("^:$"):
-                # print(self.__currentToken__())
                 dateString = self.__createDate__()
                 result = cursor.set_range(dateString.encode("utf-8"))
 
@@ -113,39 +112,42 @@ class QueryParse(object):
             elif self.__match__("^>=$"):
                 dateString = self.__createDate__()
                 result = cursor.set_range(dateString.encode("utf-8"))
+                
                 while (result != None):
                     # print (result)
-                    result = cursor.next()
                     if result != None:
                         dateSet.add(result[1].decode("utf-8"))
+                    result = cursor.next()
 
             elif self.__match__("^<=$"):
                 dateString = self.__createDate__()
-                    
-                result = cursor.set_range(dateString.encode("utf-8"))
-                while (result != None):
-                    result = cursor.prev()
-                    if result != None:
-                        dateSet.add(result[1].decode("utf-8"))
-
-            elif self.__match__("^>$"):
-                dateString = self.__createDate__()
-
                 result = cursor.set_range(dateString.encode("utf-8"))
                 
                 while (result != None):
-                    if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
+                    if result != None and dateString >= result[0].decode("utf-8"):
+                        dateSet.add(result[1].decode("utf-8"))
+                    result = cursor.prev()
+
+            elif self.__match__("^>$"):
+                dateString = self.__createDate__()
+                result = cursor.set_range(dateString.encode("utf-8"))
+                
+                while (result != None):
+                    if dateString != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         if result != None:
                             dateSet.add(result[1].decode("utf-8"))
+                    result = cursor.next()
                         
             elif self.__match__("^<$"):
                 dateString = self.__createDate__()
                 result = cursor.set_range(dateString.encode("utf-8"))
+                
                 while (result != None):
-                    if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
-                        result = cursor.prev()
+                    if dateString != result[0].decode("utf-8") and dateString > result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         if result != None:
                             dateSet.add(result[1].decode("utf-8"))
+                    result = cursor.prev()
+
             if self.multipleQuery == True:
                 self.idResult.intersection(dateSet)
             else:
@@ -332,7 +334,7 @@ def main():
     tokens = lex.execute(query)
     parser = QueryParse(tokens)
     parser.execute()
-    # print (parser.idResult)
+    print (parser.idResult)
 
 
 if __name__ == "__main__":
