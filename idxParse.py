@@ -136,6 +136,7 @@ class QueryParse(object):
                 
                 while (result != None):
                     if self.__currentToken__() != result[0].decode("utf-8"): #excludes the current token since this is exclusive
+                        result = cursor.next()
                         if result != None:
                             dateSet.add(result[1].decode("utf-8"))
                         
