@@ -229,24 +229,3 @@ class QueryParse(object):
             if re.search("^[0-9]{2}$", self.__currentToken__()):
                 dateString += self.__consumeToken__()
             return dateString
-
-
-
-def lexer(query):
-    tmp = list(filter(None, re.split(r" |(^[<>=]{2}$)|(^[:<>]{1}$)|(^output=[\w]+$)|([a-zA-Z0-9_\-]+)", query)))
-    tokens = []
-    [tokens.append(x) for x in tmp if not str(x).strip() == ""]
-    return tokens
-
-
-
-def main():
-    query = input("enter query:\n")
-    tokens = lexer(query)
-    parser = QueryParse(tokens)
-    parser.execute()
-    # print (parser.idResult)
-
-
-if __name__ == "__main__":
-    main()
