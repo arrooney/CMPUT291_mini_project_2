@@ -245,7 +245,7 @@ class QueryParse(object):
                     termSet.add(result[1].decode("utf-8"))
             if self.multipleQuery == True:
                 self.idResult.intersection(termSet)
-            elif self.multipleQuery == False:
+            else:
                 self.idResult = termSet
             
             self.__closeConn__(db)
