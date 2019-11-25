@@ -95,6 +95,7 @@ class QueryParse(object):
                 self.multipleQuery = True
             return True
 
+
         def __dateQuery__(self):
             [db, cursor] = self.__cursor__("idx/da.idx", "btree")
             dateSet = set()
@@ -123,7 +124,6 @@ class QueryParse(object):
                     return
                 
                 while (result != None):
-                    # print (result)
                     if result != None:
                         dateSet.add(result[1].decode("utf-8"))
                     result = cursor.next()
@@ -169,12 +169,13 @@ class QueryParse(object):
                     result = cursor.prev()
 
             if self.multipleQuery == True:
-                self.idResult.intersection(dateSet)
+                self.idResult = self.idResult.intersection(dateSet)
             else:
                 self.idResult = dateSet
             self.__closeConn__(db)
             return
         
+
         def __emailQuery__(self):
             [db, cursor] = self.__cursor__("idx/em.idx", "btree")
             emailSet = set()
@@ -196,11 +197,11 @@ class QueryParse(object):
             result = cursor.first()
             while (result != None):
                 if result[0].decode("utf-8").lower() == emailSearch:
-                    # print (result[1].decode("utf-8"))
                     emailSet.add(result[1].decode("utf-8"))
                 result = cursor.next()
             if self.multipleQuery == True:
-                self.idResult.intersection(emailSet)
+                print("intersecting in email query")
+                self.idResult = self.idResult.intersection(emailSet)
             else:
                 self.idResult = emailSet
             
@@ -208,6 +209,7 @@ class QueryParse(object):
 
             return
        
+
         def __termQuery__(self):
             [db, cursor] = self.__cursor__("idx/re.idx", "hash")
             if self.__match__("^subj$"):
@@ -249,9 +251,11 @@ class QueryParse(object):
                 self.__findTerm__(wildCard, searchTerm)
             return
 
+
         def __findTerm__(self, wildCard, term):
             [db, cursor] = self.__cursor__("idx/te.idx", "btree")
             termSet = set()
+            print("here with " + term)
             if wildCard:
                 # search for all occurances in alphabetical order
                 result = cursor.set(term.encode("utf-8"))
@@ -260,15 +264,20 @@ class QueryParse(object):
                     result = cursor.next()
             else:
                 result = cursor.set(term.encode("utf-8"))
-                if result != None:
+                while (result != None and result[0].decode("utf-8") == term):
                     termSet.add(result[1].decode("utf-8"))
+                    result = cursor.next()
+            
             if self.multipleQuery == True:
-                self.idResult.intersection(termSet)
+                print("HERE")
+                print(termSet)
+                self.idResult = self.idResult.intersection(termSet)
             else:
                 self.idResult = termSet
             
             self.__closeConn__(db)
             return
+
 
         def __emailTerm__(self, email):
             # recursively construct the email term production
@@ -282,10 +291,12 @@ class QueryParse(object):
             else:
                 print("BAD EMAIL FORMAT")
 
+
         def __consumeToken__(self):
             temp = self.__currentToken__()
             self.current += 1
             return temp            
+
 
         def __createDate__(self):
             dateString = ""
@@ -315,6 +326,7 @@ class QueryParse(object):
                 return None
             return dateString
 
+
 class Lexer(object):
 
     def __init__(self):
@@ -323,8 +335,9 @@ class Lexer(object):
     def execute(self, query):
         tmp = list(filter(None, re.split(r" |(^[<>=]{2}$)|(^[:<>]{1}$)|(^output=[\w]+$)|([a-zA-Z0-9_\-]+)", query)))
         tokens = []
-        [tokens.append(x) for x in tmp if not str(x).strip() == ""]
+        [tokens.append(x.lower()) for x in tmp if not str(x).strip() == ""]
         return tokens
+
 
 class XMLlexer(object):
     def __init__(self):
@@ -335,6 +348,7 @@ class XMLlexer(object):
         tokens = []
         [tokens.append(x) for x in tmp if not str(x).strip() == ""]
         return tokens
+
 
 class XMLParse(object):
     """docstring for XMLParse"""
@@ -358,7 +372,6 @@ class XMLParse(object):
             i += 1
 
         
-
 def main():
     query = input("enter query:\n")
     lex = Lexer()

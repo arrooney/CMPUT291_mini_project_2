@@ -21,7 +21,7 @@ def displayResults(idList, verbosity):
 		xmlParser.execute(tok)
 		email = xmlParser.result
 
-		print("ID:")
+		print("\nID:")
 		print(email["row"])
 		print("subj:")
 		if ("subj" in email.keys()):
@@ -47,12 +47,12 @@ def displayResults(idList, verbosity):
 			print("Body:")
 			if ("body" in email.keys()):
 				print(email["body"])
-
+		print("")
 	mydb.close()
 
 def main():
 	while True:
-		print("Enter your query:")
+		prettyPrint("Enter your query:")
 		query = input("> ")
 		tokens = lexer.execute(query)
 		parser.execute(tokens)
@@ -62,6 +62,7 @@ def main():
 			prettyPrint("No results", 0.5)
 		else:
 			displayResults(idx, parser.mode)
+		input("Press enter to continue...")
 
 def prettyPrint(output, timeout=0):
 	# output a nice header, with an optional timeout parameter
