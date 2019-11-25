@@ -7,9 +7,9 @@ from bsddb3 import db
 
 class QueryParse(object):
     """
-    
-    Recursive descent-style parser to implement the query language as specified by the grammar on eclass. 
-    
+
+    Recursive descent-style parser to implement the query language as specified by the grammar on eclass.
+
     + execute(tokens) executes the parser on the given tokens
     + getResult() returns the set of ID's matching the executed query
 
@@ -27,7 +27,7 @@ class QueryParse(object):
             self.current = 0
             self.idResult = set()
             self.multipleQuery = False
-            
+
             return self.__command__()
 
         def getResult(self):
@@ -41,7 +41,7 @@ class QueryParse(object):
             tmp = db.DB()
             data = db.DB_BTREE if treeType == "btree" else db.DB_HASH
             tmp.open(path, None, data, db.DB_RDONLY)
-            
+
             return [tmp, tmp.cursor()]
 
         def __closeConn__(self, db):
@@ -56,7 +56,7 @@ class QueryParse(object):
             # return the current token
             if self.current < len(self.tokens):
                 return self.tokens[self.current]
-            
+
             return ""
 
         def __match__(self, pattern):
@@ -65,7 +65,7 @@ class QueryParse(object):
             if re.search(pattern, self.__currentToken__()):
                 self.current += 1
                 return True
-            
+
             return False
 
         def __command__(self):
@@ -80,10 +80,10 @@ class QueryParse(object):
         def __modeChange__(self):
             # change the output verbosity of the query
             mode = re.findall("^output=([\w]+)$", self.__currentToken__())
-            
+
             if mode != []:
                 mode = mode[0]
-            
+
             if not (mode == 'full' or mode == 'brief'):
                 return "Failed"
             else:
@@ -97,7 +97,7 @@ class QueryParse(object):
 
         def __expression__(self):
             # implement expression production
-            # expression      ::= dateQuery | emailQuery | termQuery 
+            # expression      ::= dateQuery | emailQuery | termQuery
             if self.__match__("^date$"):
                 self.__dateQuery__()
                 self.multipleQuery = True
@@ -108,7 +108,7 @@ class QueryParse(object):
             else:
                 self.__termQuery__()
                 self.multipleQuery = True
-            
+
             return True
 
         def __dateQuery__(self):
@@ -116,10 +116,10 @@ class QueryParse(object):
             # dateQuery       ::= datePrefix whitespace* date
             [db, cursor] = self.__cursor__("idx/da.idx", "btree")
             dateSet = set()
-            
+
             if self.__match__("^:$"):
                 dateString = self.__createDate__()
-                
+
                 if dateString != None:
                     result = cursor.set_range(dateString.encode("utf-8"))
                 else:
@@ -127,7 +127,7 @@ class QueryParse(object):
                     return
 
                 while (result != None):
-                    
+
                     if dateString == result[0].decode("utf-8"):
                         dateSet.add(result[1].decode("utf-8"))
                     result = cursor.next()
@@ -136,39 +136,39 @@ class QueryParse(object):
                     dateSet.add(result[1].decode("utf-8"))
             elif self.__match__("^>=$"):
                 dateString = self.__createDate__()
-                
+
                 if dateString != None:
                     result = cursor.set_range(dateString.encode("utf-8"))
                 else:
                     print ("BAD QUERY FORMAT")
                     return
-                
+
                 while (result != None):
                     if result != None:
                         dateSet.add(result[1].decode("utf-8"))
                     result = cursor.next()
             elif self.__match__("^<=$"):
                 dateString = self.__createDate__()
-                
+
                 if dateString != None:
                     result = cursor.set_range(dateString.encode("utf-8"))
                 else:
                     print ("BAD QUERY FORMAT")
                     return
-                
+
                 while (result != None):
                     if result != None and dateString >= result[0].decode("utf-8"):
                         dateSet.add(result[1].decode("utf-8"))
                     result = cursor.prev()
             elif self.__match__("^>$"):
                 dateString = self.__createDate__()
-                
+
                 if dateString != None:
                     result = cursor.set_range(dateString.encode("utf-8"))
                 else:
                     print ("BAD QUERY FORMAT")
                     return
-                
+
                 while (result != None):
                     if dateString != result[0].decode("utf-8"): #excludes the current token since this is exclusive
                         if result != None:
@@ -176,7 +176,7 @@ class QueryParse(object):
                     result = cursor.next()
             elif self.__match__("^<$"):
                 dateString = self.__createDate__()
-                
+
                 if dateString != None:
                     result = cursor.set_range(dateString.encode("utf-8"))
                 else:
@@ -193,9 +193,9 @@ class QueryParse(object):
             else:
                 self.idResult = dateSet
             self.__closeConn__(db)
-            
+
             return
-        
+
         def __emailQuery__(self):
             # implement emailQuery production
             # emailQuery    ::= emailPrefix whitespace* email
@@ -205,13 +205,13 @@ class QueryParse(object):
             emailSearch = ""
             emailTerm = ""
             emailSearch += self.__consumeToken__()  + "-" # add the "to-, from-, bcc-, or cc-"
-            
+
             if self.__currentToken__() == ":":
                 self.__consumeToken__() # discard the colon
             else:
                 print ("Enter a valid query")
             emailSearch += self.__emailTerm__(emailTerm)
-            
+
             if (self.__match__("^@$")):
                 emailterm = ""
                 emailSearch += "@" + self.__emailTerm__(emailTerm)
@@ -220,34 +220,34 @@ class QueryParse(object):
             #Check and return all emails that have a key that matches emailSearch
             result = cursor.first()
             while (result != None):
-                
+
                 if result[0].decode("utf-8").lower() == emailSearch:
                     emailSet.add(result[1].decode("utf-8"))
                 result = cursor.next()
-            
+
             if self.idResult != set():
                 print("intersecting in email query")
                 self.idResult = self.idResult.intersection(emailSet)
             else:
                 self.idResult = emailSet
-            
+
             self.__closeConn__(db)
 
             return
-       
+
         def __termQuery__(self):
             # implement termQuery production
             # termQuery       ::= termPrefix? whitespace* term termSuffix?
             [db, cursor] = self.__cursor__("idx/re.idx", "hash")
-            
+
             if self.__match__("^subj$"):
                 # seach in the subject field
                 if not self.__match__("^:$"): print("ERROR") # consume the colon
-                
+
                 wildCard = False
                 searchTerm = "s-" + self.__consumeToken__()
                 searchTerm = searchTerm.lower()
-                
+
                 if self.__match__("^%$"):
                     wildCard = True
                 self.__findTerm__(wildCard, searchTerm)
@@ -260,17 +260,17 @@ class QueryParse(object):
                 wildCard = False
                 searchTerm = "b-" + self.__consumeToken__()
                 searchTerm = searchTerm.lower()
-                
+
                 if self.__match__("^%$"):
                     wildCard = True
-                
+
                 self.__findTerm__(wildCard, searchTerm)
-            else: 
+            else:
                 #this will be the condition where term prefix is 0
                 # search BOTH in the body, and the subject
                 wildCard = False
                 term = self.__consumeToken__()
-                
+
                 if self.__match__("^%$"):
                     wildCard = True
                 term = term.lower()
@@ -289,7 +289,7 @@ class QueryParse(object):
             if wildCard:
                 # search for all occurances in alphabetical order
                 result = cursor.set_range(term.encode("utf-8"))
-                
+
                 while (result != None and result[0].decode("utf-8").startswith(term)):
                     termSet.add(result[1].decode("utf-8"))
                     result = cursor.next()
@@ -298,7 +298,7 @@ class QueryParse(object):
                 while (result != None and result[0].decode("utf-8") == term):
                     termSet.add(result[1].decode("utf-8"))
                     result = cursor.next()
-            
+
             if self.idResult == set():
                 self.idResult = termSet
             elif not generalTerm:
@@ -306,9 +306,9 @@ class QueryParse(object):
             else:
                 # when you're looking for subject OR body
                 self.idResult = self.idResult.union(termSet)
-            
+
             self.__closeConn__(db)
-            
+
             return
 
 
@@ -317,13 +317,13 @@ class QueryParse(object):
             # emailterm ::= alphanumeric+ | alphanumeric+ '.' emailterm
             if(re.search("^[0-9a-zA-Z_-]+$", self.__currentToken__())):
                 email += self.__consumeToken__()
-                
+
                 if(re.search("^\.$", self.__currentToken__())):
                     tmp = ""
                     email += self.__consumeToken__()
                     email += self.__emailTerm__(tmp)
                 return email
-            
+
             else:
                 print("BAD EMAIL FORMAT")
 
@@ -332,7 +332,7 @@ class QueryParse(object):
             # return the current token, and increment pointer
             temp = self.__currentToken__()
             self.current += 1
-            return temp            
+            return temp
 
 
         def __createDate__(self):
@@ -348,17 +348,17 @@ class QueryParse(object):
                 dateString += self.__consumeToken__()
             else:
                 return None
-                
+
             if re.search("^[0-9]{2}$", self.__currentToken__()):
                 dateString += self.__consumeToken__()
             else:
                 return None
-                
+
             if re.search("^/$", self.__currentToken__()):
                 dateString += self.__consumeToken__()
             else:
                 return None
-                
+
             if re.search("^[0-9]{2}$", self.__currentToken__()):
                 dateString += self.__consumeToken__()
             else:
@@ -418,7 +418,7 @@ class XMLParse(object):
                     i -= 1
             i += 1
 
-        
+
 def main():
     # main for testing purposes
     query = input("enter query:\n")

@@ -35,7 +35,7 @@ class ParseMail(object):
 		while(not self.__match__("^\s*</mail>\s*$", appendXml=False)):
 			if re.search("^\s*<([\w]+)>([\s\w/!@#$%^&*\.:\-,\?\(\)\"\'\+=\\/\[\]\{\}]+)?</[\w]+>\s*$", self.__tokenPeek__()):
 				# <tag>data</tag>
-				# this line contains 
+				# this line contains
 				tagVal = re.findall("^\s*<([\w]+)>([\s\w/!@#$%^&*\.:\-,\?\(\)\"\'\+=\\/\[\]\{\}]+)?</[\w]+>\s*$", self.__consume__())
 				self.thisEmail[tagVal[0][0]] = tagVal[0][1]
 
@@ -110,7 +110,7 @@ class ParseMail(object):
 			else:
 				sep = ":<mail>"
 			self.recs.write(self.thisEmail["row"] + sep + self.thisEmail["xml"] + "\n")
-	
+
 	def __sortFiles__(self):
 		os.system("sort terms.txt -u -o terms_sorted.txt")
 		os.system("sort emails.txt -u -o emails_sorted.txt")
@@ -122,7 +122,7 @@ class ParseMail(object):
 
 	def __openFiles__(self):
 		self.term = open("terms.txt", mode = "w", encoding = "utf-8")
-		self.emails = open("emails.txt", mode = "w", encoding = "utf-8") 
+		self.emails = open("emails.txt", mode = "w", encoding = "utf-8")
 		self.dates = open("dates.txt", mode = "w", encoding = "utf-8")
 		self.recs = open("recs.txt", mode = "w", encoding = "utf-8")
 
