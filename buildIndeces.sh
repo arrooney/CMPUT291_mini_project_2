@@ -6,13 +6,12 @@
 
 DIR="./idx/"
 
-if [ -f ${DIR} ]; then
+if [ -e ${dir} ]
+then
 	rm -r ${DIR}
 fi
 
-if ! [ -f ${DIR} ]; then
-	mkdir ${DIR}
-fi
+mkdir ${DIR}
 
 # sort the files, use db_load to create the index
 if [ -f "terms.txt" ]; then
