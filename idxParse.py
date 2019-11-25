@@ -83,13 +83,16 @@ class QueryParse(object):
         def __expression__(self):
             if self.__match__("^date$"):
                 self.__dateQuery__()
+                self.multipleQuery = True
 
             elif self.__match__("^cc$|^bcc$|^from$|^to$"):
                 self.__rewind__()
                 self.__emailQuery__()
+                self.multipleQuery = True
 
             else:
                 self.__termQuery__()
+                self.multipleQuery = True
             return True
 
         def __dateQuery__(self):
