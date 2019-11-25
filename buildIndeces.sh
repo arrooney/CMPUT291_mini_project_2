@@ -6,7 +6,9 @@
 
 DIR="./idx/"
 
-rm -r ${DIR}
+if [ -f ${DIR} ]; then
+	rm -r ${DIR}
+fi
 
 if ! [ -f ${DIR} ]; then
 	mkdir ${DIR}
