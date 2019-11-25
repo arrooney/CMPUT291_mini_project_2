@@ -168,7 +168,7 @@ class QueryParse(object):
                             dateSet.add(result[1].decode("utf-8"))
                     result = cursor.prev()
 
-            if self.multipleQuery == True:
+            if self.idResult != set():
                 self.idResult = self.idResult.intersection(dateSet)
             else:
                 self.idResult = dateSet
@@ -199,7 +199,7 @@ class QueryParse(object):
                 if result[0].decode("utf-8").lower() == emailSearch:
                     emailSet.add(result[1].decode("utf-8"))
                 result = cursor.next()
-            if self.multipleQuery == True:
+            if self.idResult != set():
                 print("intersecting in email query")
                 self.idResult = self.idResult.intersection(emailSet)
             else:
@@ -248,17 +248,17 @@ class QueryParse(object):
                 searchTerm = "b-" + term
                 self.__findTerm__(wildCard, searchTerm)
                 searchTerm = "s-" + term
-                self.__findTerm__(wildCard, searchTerm)
+                self.__findTerm__(wildCard, searchTerm, generalTerm=True)
             return
 
 
-        def __findTerm__(self, wildCard, term):
+        def __findTerm__(self, wildCard, term, generalTerm=False):
             [db, cursor] = self.__cursor__("idx/te.idx", "btree")
             termSet = set()
-            print("here with " + term)
+            
             if wildCard:
                 # search for all occurances in alphabetical order
-                result = cursor.set(term.encode("utf-8"))
+                result = cursor.set_range(term.encode("utf-8"))
                 while (result != None and result[0].decode("utf-8").startswith(term)):
                     termSet.add(result[1].decode("utf-8"))
                     result = cursor.next()
@@ -268,12 +268,13 @@ class QueryParse(object):
                     termSet.add(result[1].decode("utf-8"))
                     result = cursor.next()
             
-            if self.multipleQuery == True:
-                print("HERE")
-                print(termSet)
+            if self.idResult == set():
+                self.idResult = termSet
+            elif not generalTerm:
                 self.idResult = self.idResult.intersection(termSet)
             else:
-                self.idResult = termSet
+                # when you're looking for subject OR body
+                self.idResult = self.idResult.union(termSet)
             
             self.__closeConn__(db)
             return
