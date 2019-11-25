@@ -1,3 +1,7 @@
+"""
+CMPUT 291 MiniProject 2
+"""
+
 import sys, re, os
 
 class ParseMail(object):

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+###
+#	CMPUT 291 MiniProject 2
+###
+
 DIR="./idx/"
 
 rm -r ${DIR}

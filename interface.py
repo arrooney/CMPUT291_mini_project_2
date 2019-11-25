@@ -1,8 +1,11 @@
+"""
+CMPUT 291 MiniProject 2
+"""
 from idxParse import QueryParse, Lexer, XMLlexer, XMLParse
-import os, sys, time, re
 from bsddb3 import db
-# globals
+import os, sys, time, re
 
+# globals
 clear = lambda: os.system('clear')
 lexer = Lexer()
 parser = QueryParse()
