@@ -3,6 +3,7 @@ Mini Project 2 for CMPUT291
 
 * Contributors
   *  Andrew R. Rooney - 1496508
+  *  Anthony M. Ma - 1533032
 
 *  To create indexable text files:
 ```
