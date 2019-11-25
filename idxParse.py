@@ -226,7 +226,6 @@ class QueryParse(object):
             result = cursor.next()
 
         if self.idResult != set():
-            print("intersecting in email query")
             self.idResult = self.idResult.intersection(emailSet)
         else:
             self.idResult = emailSet
