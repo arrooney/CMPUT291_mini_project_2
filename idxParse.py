@@ -1,23 +1,23 @@
 # alphanumeric    ::= [0-9a-zA-Z_-]
-# numeric		::= [0-9]
+# numeric       ::= [0-9]
 # date            ::= numeric numeric numeric numeric '/' numeric numeric '/' numeric numeric
 # datePrefix      ::= 'date' whitespace* (':' | '>' | '<' | '>=' | '<=')
 # dateQuery       ::= datePrefix whitespace* date
-# emailterm	::= alphanumeric+ | alphanumeric+ '.' emailterm
-# email		::= emailterm '@' emailterm
-# emailPrefix	::= (from | to | cc | bcc) whitespace* ':'
-# emailQuery	::= emailPrefix whitespace* email
+# emailterm ::= alphanumeric+ | alphanumeric+ '.' emailterm
+# email     ::= emailterm '@' emailterm
+# emailPrefix   ::= (from | to | cc | bcc) whitespace* ':'
+# emailQuery    ::= emailPrefix whitespace* email
 # term            ::= alphanumeric+
-# termPrefix	::= (subj | body) whitespace* ':'
+# termPrefix    ::= (subj | body) whitespace* ':'
 # termSuffix      ::= '%'
 # termQuery       ::= termPrefix? whitespace* term termSuffix?
 #
 # expression      ::= dateQuery | emailQuery | termQuery
 # query           ::= expression (whitespace expression)*
 #
-# modeChange	::= 'output=full' | 'output=brief'
+# modeChange    ::= 'output=full' | 'output=brief'
 #
-# command		::= query | modeChange
+# command       ::= query | modeChange
 
 import re
 from bsddb3 import db
@@ -190,12 +190,12 @@ class QueryParse(object):
             if (self.__match__("^@$")):
                 emailterm = ""
                 emailSearch += "@" + self.__emailTerm__(emailTerm)
-            
+            emailSearch = emailSearch.lower()
             #iterate through every single entry in the query
             #Check and return all emails that have a key that matches emailSearch
             result = cursor.first()
             while (result != None):
-                if result[0].decode("utf-8") == emailSearch:
+                if result[0].decode("utf-8").lower() == emailSearch:
                     # print (result[1].decode("utf-8"))
                     emailSet.add(result[1].decode("utf-8"))
                 result = cursor.next()
@@ -217,6 +217,7 @@ class QueryParse(object):
                 
                 wildCard = False
                 searchTerm = "s-" + self.__consumeToken__()
+                searchTerm = searchTerm.lower()
                 if self.__match__("^%$"):
                     wildCard = True
                 self.__findTerm__(wildCard, searchTerm)
@@ -228,6 +229,7 @@ class QueryParse(object):
                 # seach in the body field
                 wildCard = False
                 searchTerm = "b-" + self.__consumeToken__()
+                searchTerm = searchTerm.lower()
                 if self.__match__("^%$"):
                     wildCard = True
                 
@@ -240,6 +242,7 @@ class QueryParse(object):
                 term = self.__consumeToken__()
                 if self.__match__("^%$"):
                     wildCard = True
+                term = term.lower()
                 searchTerm = "b-" + term
                 self.__findTerm__(wildCard, searchTerm)
                 searchTerm = "s-" + term
