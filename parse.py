@@ -88,14 +88,19 @@ class ParseMail(object):
 	def __createEmails__(self):
 		if self.thisEmail != {}:
 			id = self.thisEmail["row"]
+			if id == "107":
+				print(self.thisEmail["to"])
 			if self.thisEmail["from"] != "":
 				self.emails.write("from-" + self.thisEmail["from"] + ":" + id + "\n")
 			if self.thisEmail["to"] != "":
-				self.emails.write("to-" + self.thisEmail["to"] + ":" + id + "\n")
+				for emails in self.thisEmail["to"].strip().split(","):
+					self.emails.write("to-" + emails + ":" + id + "\n")
 			if self.thisEmail["cc"] != "":
-				self.emails.write("cc-" + self.thisEmail["cc"] + ":" + id + "\n")
+				for emails in self.thisEmail["cc"].strip().split(","):
+					self.emails.write("cc-" + emails + ":" + id + "\n")
 			if self.thisEmail["bcc"] != "":
-				self.emails.write("bcc-" + self.thisEmail["bcc"] + ":" + id + "\n")
+				for emails in self.thisEmail["bcc"].strip().split(","):
+					self.emails.write("bcc-" + emails + ":" + id + "\n")
 
 	def __createDates__(self):
 		if self.thisEmail != {}:
