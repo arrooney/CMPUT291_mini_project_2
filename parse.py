@@ -25,10 +25,14 @@ class ParseMail(object):
 		self.__openFiles__()
 		self.thisEmail = {}
 		self.thisEmail["xml"] = ""
-		while(self.__match__("^\s*(<mail>)|(<emails type=[\w\"\']*>)\s*$")):
+		sys.stdin.readline()
+		sys.stdin.readline()
+		self.__getTokens__()
+		while(self.__match__("^\s*(<mail>)|(<emails type=[\w\"\']*>)\s*")):
 			self.__emailInfo__()
 			self.thisEmail.clear()
 			self.thisEmail["xml"] = ""
+			self.__getTokens__()
 		self.__closeFiles__()
 
 	def __emailInfo__(self):
@@ -46,7 +50,10 @@ class ParseMail(object):
 				tagname = re.findall("^\s*<([a-zA-z]+)>\s*$", self.__tokenPeek__())
 				if (tagname[0] != "mail"):
 					self.__consume__()
-					self.thisEmail[tagname[0]] = self.__consume__()
+					if not re.search("^\s*</([a-zA-z]+)>\s*$", self.__tokenPeek__()):
+						self.thisEmail[tagname[0]] = self.__consume__()
+					else:
+						self.thisEmail[tagname[0]] = ""
 				else:
 					self.__consume__(appendXml=False)
 
@@ -72,6 +79,13 @@ class ParseMail(object):
 		self.__createDates__()
 		self.__createRecs__()
 
+
+	def __getTokens__(self):
+		self.current = 0
+		self.tokenList = []
+		tmp = re.split("(<[\w/]+>)", sys.stdin.readline())
+		[self.tokenList.append(x) for x in tmp if not str(x).strip() == ""]
+
 	def __createTerm__(self):
 		if self.thisEmail != {}:
 			# sanitize output and write to term.txt
@@ -88,8 +102,6 @@ class ParseMail(object):
 	def __createEmails__(self):
 		if self.thisEmail != {}:
 			id = self.thisEmail["row"]
-			if id == "107":
-				print(self.thisEmail["to"])
 			if self.thisEmail["from"] != "":
 				self.emails.write("from-" + self.thisEmail["from"] + ":" + id + "\n")
 			if self.thisEmail["to"] != "":
@@ -141,10 +153,18 @@ class ParseMail(object):
 	def __match__(self, pattern, appendXml=True):
 		# check if the current token matches the pattern, increment current if so
 		if not self.thisToken:
-			self.thisToken = sys.stdin.readline()
+			if self.current < len(self.tokenList):
+				self.thisToken = self.tokenList[self.current].strip()
+				self.current += 1
+			else:
+				self.thisToken = ""
 			self.thisEmail["xml"] += self.thisToken.strip()
 		if re.search(pattern, self.thisToken):
-			self.thisToken = sys.stdin.readline()
+			if self.current < len(self.tokenList):
+				self.thisToken = self.tokenList[self.current].strip()
+				self.current += 1
+			else:
+				self.thisToken = ""
 			if appendXml:
 				self.thisEmail["xml"] += self.thisToken.strip()
 			return True
@@ -155,7 +175,11 @@ class ParseMail(object):
 
 	def __consume__(self, appendXml=True):
 		tmp = self.thisToken
-		self.thisToken = sys.stdin.readline()
+		if self.current < len(self.tokenList):
+			self.thisToken = self.tokenList[self.current].strip()
+			self.current += 1
+		else:
+			self.thisToken = ""
 		if appendXml:
 			self.thisEmail["xml"] += self.thisToken.strip()
 		return tmp
