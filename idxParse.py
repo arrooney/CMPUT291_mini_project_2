@@ -226,7 +226,6 @@ class QueryParse(object):
             result = cursor.next()
 
         if self.idResult != set():
-            print("intersecting in email query")
             self.idResult = self.idResult.intersection(emailSet)
         else:
             self.idResult = emailSet
@@ -240,7 +239,7 @@ class QueryParse(object):
         # termQuery       ::= termPrefix? whitespace* term termSuffix?
         [db, cursor] = self.__cursor__("idx/re.idx", "hash")
 
-        if self.__match__("^subj$"):
+        if self.__match__("^subj$") or self.__match__("^subject$"):
             # seach in the subject field
             if not self.__match__("^:$"): print("ERROR") # consume the colon
 
